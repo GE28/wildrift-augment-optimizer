@@ -1,0 +1,189 @@
+[
+  {
+    "name": "Stinging Storm",
+    "description": "Mark enemies with abilities, deal more damage with attacks, then trigger the magic array to set off an explosive chain!",
+    "augments": ["Soulhunter's chain", "Blade Array", "Mystic Punch"]
+  },
+  {
+    "name": "Berserker's Domain",
+    "description": "With the lion's soul by your side, grow stronger the longer you fight. Weave attacks into your abilities to become an all-round berserker!",
+    "augments": [
+      "Health Marker",
+      "Soulhunter's chain",
+      "Dual Strike",
+      "Lion's Spellblade"
+    ]
+  },
+  {
+    "name": "Since You're Here",
+    "description": "An unbroken crowd control chain that evolves into a mobile gravity field, trapping enemies with no escape!",
+    "augments": ["Heart of Steel", "Imprisoning Chain", "Thief's Circle"]
+  },
+  {
+    "name": "Torment Engine",
+    "description": "The harder they hit you, the harder you hit back! It's too late for them to run!",
+    "augments": ["Spiny Counter", "Charged Shield", "Vengeful Counter"]
+  },
+  {
+    "name": "Kitty Missile",
+    "description": "Projectiles fly faster, deal increased damage, have shorter cooldowns, and ricochet to other targets on hit. Bounce your heart out!",
+    "augments": ["Speed up, Meow!", "Cool down, meow!", "Bounce, meow!"]
+  },
+  {
+    "name": "Power of Arrays",
+    "description": "Arrays automatically track and burn enemies, and trigger a meteor shower with a large area of effect, creating a cycle of bombardment.",
+    "augments": [
+      "Nowhere to run, meow!",
+      "Burn, meow!",
+      "Kaboom, Meow!",
+      "Blade Array",
+      "Thief's Circle"
+    ]
+  },
+  {
+    "name": "Stack 'em Attacks",
+    "description": "Attacks stack true damage, and combined with splashing feathers and bouncing crossblades, they overwhelm enemies. Let them feel the full force of the barrage storm!",
+    "augments": [
+      "Plaguebrand",
+      "Splintered Chakrams",
+      "Stack Assault",
+      "Moonlit Falcon Strike"
+    ]
+  },
+  {
+    "name": "Lupine Stance",
+    "description": "Dash to summon a lupine soul that assists your attacks and steal infinitely stacking movement speed to dominate the battlefield.",
+    "augments": ["Lupine Soul", "Tectonic Rift", "Combo Strike"]
+  },
+  {
+    "name": "Lupine Spellblade",
+    "description": "Trigger multiple Spellblade effects, leaving your enemies dazzled and defeated!",
+    "augments": [
+      "Lupine Soul",
+      "Piercing Spellblade",
+      "Lupine Miasma",
+      "Spellblade Combo"
+    ]
+  },
+  {
+    "name": "Healing Heartsong",
+    "description": "Chain heals, shields, and abilities to become the most lovable sustain machine on the battlefield!",
+    "augments": [
+      "Heartsong Conversion",
+      "Heartsong Restoration",
+      "Heartsong Speed"
+    ]
+  },
+  {
+    "name": "Burning Heartsong",
+    "description": "What's sweet to one is bitter to another. Who knew healing could deal so much damage too!",
+    "augments": ["Heartsong Blade", "Heartsong Bolt", "Heartsong Corrosion"]
+  },
+  {
+    "name": "Forbidden Series",
+    "description": "Combine Omnivamp with a slow effect in an area to endlessly harvest resources, achieving continuous stat growth.",
+    "augments": [
+      "Forbidden Bliss",
+      "Cursed Blight",
+      "Forbidden Rage",
+      "Forbidden Evil"
+    ]
+  },
+  {
+    "name": "Spellblade Chain",
+    "description": "Chain multiple Spellblade effects to buff yourself and weaken the enemy, allowing you to control the flow of battle",
+    "augments": [
+      "Lion's Spellblade",
+      "Unstoppable Surge",
+      "Piercing Spellblade",
+      "Spellblade Combo",
+      "Lord of Spellblade"
+    ]
+  },
+  {
+    "name": "Super Dodgy",
+    "description": "Steal stats to grow in size and Resistances, growing stronger over time through damage taken and crowd control effects.",
+    "augments": [
+      "Master Thief",
+      "Nebula Rift",
+      "Tectonic Rift",
+      "Thief's Circle"
+    ]
+  },
+  {
+    "name": "Stance Specialist",
+    "description": "Combines your movement abilities with invisibility and shields. Taking damage reduces cooldowns, becoming as mobile as a phantom on the battlefield.",
+    "augments": ["Master of Mobility", "Mind to Matter", "Stack 'em Mana"]
+  },
+  {
+    "name": "Mana Control",
+    "description": "Converts Mana into damage and Health, and allows you to stack multiple items, giving you an overwhelming stat advantage.",
+    "augments": ["Stack 'em Mana", "Mind to Matter"]
+  },
+  {
+    "name": "Moonlight Resonance",
+    "description": "Attack Speed increases vamp efficiency, and synergy with Ultimate Spellbook abilities deals massive amounts of damage. The higher your Attack Speed, the higher your sustain.",
+    "augments": [
+      "Lunar Eclipse",
+      "Fury",
+      "Heavyweight Fighter",
+      "Bigger and Bigger",
+      "Leviathan"
+    ]
+  },
+  {
+    "name": "Monstrous Might",
+    "description": "Grow in size while stealing Health and Movement Speed. Combined with increasing true damage and Resistances, you'll turn into a behemoth on the battlefield.",
+    "augments": ["Bigger and Bigger", "Giant's Adversary", "Leviathan"]
+  },
+  {
+    "name": "Mini Might",
+    "description": "Shrink in size and gain Movement Speed and Armor Pen. Additionally, deal bonus damage against larger enemies, punching above your weight",
+    "augments": ["Smaller and Smaller", "Mad Scientist", "Giant's Adversary"]
+  },
+  {
+    "name": "Salvation Link",
+    "description": "Your heals and shields spread to allies and reduce cooldowns, forming a continuous support system for your team.",
+    "augments": ["Healing Force", "Transmissible Agents", "Virtuous Cycle"]
+  },
+  {
+    "name": "Echoing Shields",
+    "description": "While shielded, gain immunity to crowd control and bonus Movement Speed, and reflect incoming damage. Become a walking fortress on the battlefield!",
+    "augments": ["Starfall Shield", "Twice Thrice", "Typhoon"]
+  },
+  {
+    "name": "Shooter Expertise",
+    "description": "Unleash a dazzling barrage of attacks, clearing enemies with overwhelming force.",
+    "augments": [
+      "Proximal Storm",
+      "Dashing",
+      "Dangerous Footwork",
+      "Hi-Precision Sharpshooter"
+    ]
+  },
+  {
+    "name": "Windrider",
+    "description": "Movement Speed increases your damage and Heal Power, applies slow, and reduces cooldowns, making it the core of your battle prowess",
+    "augments": [
+      "Movement Speed Enhancement",
+      "Critical Strike Enhancement",
+      "Ascension",
+      "Pinnacle of Perfection",
+      "Stroke of Luck"
+    ]
+  },
+  {
+    "name": "Rampant Flaws",
+    "description": "Empowers all aspects of Critical Strikes for burst damage that dominates the battlefield.",
+    "augments": [
+      "Critical Strike Enhancement",
+      "Pinnacle of Perfection",
+      "Stroke of Luck"
+    ]
+  },
+  {
+    "name": "Control Expert",
+    "description": "A dual-loop strategy where crowd control and survivability fuel each other.",
+    "augments": ["Supressive Vambrace", "Resolve", "Accelerated Control"]
+  }
+]
