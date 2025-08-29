@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wild Rift AAA ARAM Augment Optimizer</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Header -->
+      <header class="header">
+        <div class="container">
+          <h1 class="header__title">Wild Rift AAA ARAM Augment Optimizer</h1>
+          <p class="header__subtitle">
+            Last Updated: August 2025 • 60+ New Augments Added
+          </p>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main">
+        <div class="container">
+          <div class="layout">
+            <!-- Left Panel: Current Augments Input -->
+            <div class="panel panel--left">
+              <div class="card">
+                <div class="card__header">
+                  <h2>Your Current Augments</h2>
+                  <button class="btn btn--sm btn--secondary" id="resetBtn">
+                    Reset All
+                  </button>
+                </div>
+                <div class="card__body">
+                  <!-- Controls -->
+                  <div class="controls">
+                    <div class="form-group">
+                      <label class="form-label">Playstyle Filter</label>
+                      <select class="form-control" id="playstyleFilter">
+                        <option value="">All Playstyles</option>
+                        <option value="Tank">Tank</option>
+                        <option value="Damage">Damage</option>
+                        <option value="Support">Support</option>
+                        <option value="Assassin">Assassin</option>
+                        <option value="ADC">ADC</option>
+                        <option value="Team Synergy">Team Synergy</option>
+                        <option value="Utility">Utility</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label"
+                        >Number of Suggestions:
+                        <span id="suggestionCount">3</span></label
+                      >
+                      <input
+                        type="range"
+                        class="form-control"
+                        id="suggestionSlider"
+                        min="1"
+                        max="10"
+                        value="5"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Search -->
+                  <div class="form-group">
+                    <label class="form-label">Search Augments</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="augmentSearch"
+                      placeholder="Type to search augments..."
+                    />
+                  </div>
+
+                  <!-- Augment Categories -->
+                  <div class="augment-categories" id="augmentCategories">
+                    <!-- Categories will be populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Center Panel: Chain Progress Overview -->
+            <div class="panel panel--center">
+              <div class="card">
+                <div class="card__header">
+                  <h2>Chain Progress Overview</h2>
+                </div>
+                <div class="card__body">
+                  <div class="chain-progress" id="chainProgress">
+                    <!-- Chain progress bars will be populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Panel: Recommendations -->
+            <div class="panel panel--right">
+              <div class="card">
+                <div class="card__header">
+                  <h2>Recommended Augments</h2>
+                </div>
+                <div class="card__body">
+                  <div class="recommendations" id="recommendations">
+                    <div class="empty-state">
+                      <p>Select some augments to see recommendations!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="presets-section">
+            <div class="card">
+              <div class="card__header">
+                <h3>Quick Build Presets</h3>
+              </div>
+              <div class="card__body">
+                <div class="presets">
+                  <button
+                    class="btn btn--outline btn--sm preset-btn"
+                    data-preset="tank"
+                  >
+                    Tank Focus
+                  </button>
+                  <button
+                    class="btn btn--outline btn--sm preset-btn"
+                    data-preset="damage"
+                  >
+                    Damage Focus
+                  </button>
+                  <button
+                    class="btn btn--outline btn--sm preset-btn"
+                    data-preset="support"
+                  >
+                    Support Focus
+                  </button>
+                  <button
+                    class="btn btn--outline btn--sm preset-btn"
+                    data-preset="assassin"
+                  >
+                    Assassin Focus
+                  </button>
+                  <button
+                    class="btn btn--outline btn--sm preset-btn"
+                    data-preset="marksman"
+                  >
+                    Marksman Focus
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Augment Detail Modal -->
+      <div class="modal hidden" id="augmentModal">
+        <div class="modal__backdrop"></div>
+        <div class="modal__content">
+          <div class="modal__header">
+            <h3 id="modalTitle">Augment Details</h3>
+            <button class="modal__close" id="modalClose">&times;</button>
+          </div>
+          <div class="modal__body">
+            <div id="modalContent">
+              <!-- Content populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
