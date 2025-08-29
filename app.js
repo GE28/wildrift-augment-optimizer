@@ -10,136 +10,358 @@ class AugmentOptimizer {
 
     // Augment data from the application data
     this.augmentChains = {
-      "Wild Bear": {
-        type: "role_series",
-        required: 3,
-        category: "Tank",
-        bonus: "Enhanced defensive abilities and team support",
-        augments: ["Bear's Resilience", "Ursine Strength", "Wild Endurance"],
-        color: "#4A90E2",
-      },
-      "Roaring Lion": {
-        type: "role_series",
+      "Stinging Storm": {
+        type: "combo_series",
         required: 3,
         category: "Damage",
-        bonus: "Increased combat prowess and sustain",
-        augments: ["Lion's Courage", "Predator's Instinct", "Royal Dominance"],
+        bonus:
+          "Mark enemies with abilities, deal more damage with attacks, then trigger the magic array to set off an explosive chain!",
+        augments: ["Soulhunter's chain", "Blade Array", "Mystic Punch"],
         color: "#E74C3C",
       },
-      "Sacred Doe": {
-        type: "role_series",
-        required: 3,
-        category: "Support",
-        bonus: "Enhanced healing and protection abilities",
-        augments: ["Doe's Grace", "Sacred Blessing", "Nature's Sanctuary"],
-        color: "#2ECC71",
+      "Berserker's Domain": {
+        type: "combo_series",
+        required: 4,
+        category: "Damage",
+        bonus:
+          "With the lion's soul by your side, grow stronger the longer you fight. Weave attacks into your abilities to become an all-round berserker!",
+        augments: [
+          "Health Marker",
+          "Soulhunter's chain",
+          "Dual Strike",
+          "Lion's Spellblade",
+        ],
+        color: "#FF6B35",
       },
-      "Shadow Wolf": {
-        type: "role_series",
+      "Since You're Here": {
+        type: "control_series",
         required: 3,
-        category: "Assassin",
-        bonus: "Improved stealth and burst damage",
-        augments: ["Wolf's Stealth", "Shadow Strike", "Pack Hunter"],
-        color: "#9B59B6",
+        category: "Tank",
+        bonus:
+          "An unbroken crowd control chain that evolves into a mobile gravity field, trapping enemies with no escape!",
+        augments: ["Heart of Steel", "Imprisoning Chain", "Thief's Circle"],
+        color: "#4A90E2",
       },
-      "Agile Cat": {
-        type: "role_series",
+      "Torment Engine": {
+        type: "defense_series",
+        required: 3,
+        category: "Tank",
+        bonus:
+          "The harder they hit you, the harder you hit back! It's too late for them to run!",
+        augments: ["Spiny Counter", "Charged Shield", "Vengeful Counter"],
+        color: "#2C3E50",
+      },
+      "Kitty Missile": {
+        type: "projectile_series",
         required: 3,
         category: "ADC",
-        bonus: "Enhanced mobility and attack speed",
-        augments: ["Cat's Agility", "Feline Reflexes", "Nine Lives"],
+        bonus:
+          "Projectiles fly faster, deal increased damage, have shorter cooldowns, and ricochet to other targets on hit. Bounce your heart out!",
+        augments: ["Speed up, Meow!", "Cool down, meow!", "Bounce, meow!"],
         color: "#F39C12",
       },
-      "Hunting Eagle": {
-        type: "role_series",
-        required: 3,
-        category: "ADC",
-        bonus: "Increased range and precision",
-        augments: ["Eagle's Vision", "Sky Hunter", "Aerial Supremacy"],
-        color: "#34495E",
-      },
-      "Fate Series": {
-        type: "special_chain",
-        required: 3,
-        category: "Utility",
-        bonus_3: "Increase level cap to 18",
-        bonus_4: "Upgrade additional augment to Starlight",
-        augments: ["Wealth", "Wisdom", "Adventure", "Supremacy"],
-        color: "#FFD700",
-      },
-      "Unknown Series": {
-        type: "special_chain",
-        required: 3,
-        category: "Utility",
-        bonus_3: "Draw additional augment",
-        bonus_4: "Upgrade additional augment to Starlight",
+      "Power of Arrays": {
+        type: "aoe_series",
+        required: 5,
+        category: "Damage",
+        bonus:
+          "Arrays automatically track and burn enemies, and trigger a meteor shower with a large area of effect, creating a cycle of bombardment.",
         augments: [
-          "Unknown Damage",
-          "Unknown Defense",
-          "Unknown Reset",
-          "Stroke of Luck",
+          "Nowhere to run, meow!",
+          "Burn, meow!",
+          "Kaboom, Meow!",
+          "Blade Array",
+          "Thief's Circle",
         ],
         color: "#8E44AD",
       },
-      "Marksman Specialist": {
-        type: "special_chain",
-        required: 3,
-        category: "ADC",
-        bonus: "Enhanced marksman abilities and area attacks",
-        augments: ["Precision Shot", "Rapid Fire", "Artillery Master"],
-        color: "#E67E22",
+      "Stack 'em Attacks": {
+        type: "damage_series",
+        required: 4,
+        category: "Damage",
+        bonus:
+          "Attacks stack true damage, and combined with splashing feathers and bouncing crossblades, they overwhelm enemies. Let them feel the full force of the barrage storm!",
+        augments: [
+          "Plaguebrand",
+          "Splintered Chakrams",
+          "Stack Assault",
+          "Moonlit Falcon Strike",
+        ],
+        color: "#D32F2F",
       },
-      "Sync-Up": {
-        type: "team_series",
+      "Lupine Stance": {
+        type: "mobility_series",
         required: 3,
-        category: "Team Synergy",
-        bonus: "Enhanced team coordination",
-        augments: ["Team Bond", "Synchronized Strike", "Unity Power"],
-        color: "#1ABC9C",
+        category: "Assassin",
+        bonus:
+          "Dash to summon a lupine soul that assists your attacks and steal infinitely stacking movement speed to dominate the battlefield.",
+        augments: ["Lupine Soul", "Tectonic Rift", "Combo Strike"],
+        color: "#9B59B6",
       },
-      Champion: {
-        type: "champion_series",
+      "Lupine Spellblade": {
+        type: "spellblade_series",
+        required: 4,
+        category: "Assassin",
+        bonus:
+          "Trigger multiple Spellblade effects, leaving your enemies dazzled and defeated!",
+        augments: [
+          "Lupine Soul",
+          "Piercing Spellblade",
+          "Lupine Miasma",
+          "Spellblade Combo",
+        ],
+        color: "#673AB7",
+      },
+      "Healing Heartsong": {
+        type: "support_series",
         required: 3,
-        category: "Utility",
-        bonus: "Champion-specific enhancements",
-        augments: ["Champion's Mark", "Signature Move", "Legendary Power"],
-        color: "#95A5A6",
+        category: "Support",
+        bonus:
+          "Chain heals, shields, and abilities to become the most lovable sustain machine on the battlefield!",
+        augments: [
+          "Heartsong Conversion",
+          "Heartsong Restoration",
+          "Heartsong Speed",
+        ],
+        color: "#2ECC71",
       },
-      "Blood Pact": {
-        type: "sacrifice_series",
+      "Burning Heartsong": {
+        type: "damage_series",
         required: 3,
         category: "Damage",
-        bonus: "High risk, high reward abilities",
-        augments: ["Blood Price", "Dark Bargain", "Soul Bond"],
-        color: "#C0392B",
+        bonus:
+          "What's sweet to one is bitter to another. Who knew healing could deal so much damage too!",
+        augments: ["Heartsong Blade", "Heartsong Bolt", "Heartsong Corrosion"],
+        color: "#E91E63",
+      },
+      "Forbidden Series": {
+        type: "special_series",
+        required: 4,
+        category: "Utility",
+        bonus:
+          "Combine Omnivamp with a slow effect in an area to endlessly harvest resources, achieving continuous stat growth.",
+        augments: [
+          "Forbidden Bliss",
+          "Cursed Blight",
+          "Forbidden Rage",
+          "Forbidden Evil",
+        ],
+        color: "#424242",
+      },
+      "Spellblade Chain": {
+        type: "spellblade_series",
+        required: 5,
+        category: "Damage",
+        bonus:
+          "Chain multiple Spellblade effects to buff yourself and weaken the enemy, allowing you to control the flow of battle",
+        augments: [
+          "Lion's Spellblade",
+          "Unstoppable Surge",
+          "Piercing Spellblade",
+          "Spellblade Combo",
+          "Lord of Spellblade",
+        ],
+        color: "#FF5722",
+      },
+      "Super Dodgy": {
+        type: "utility_series",
+        required: 4,
+        category: "Tank",
+        bonus:
+          "Steal stats to grow in size and Resistances, growing stronger over time through damage taken and crowd control effects.",
+        augments: [
+          "Master Thief",
+          "Nebula Rift",
+          "Tectonic Rift",
+          "Thief's Circle",
+        ],
+        color: "#795548",
+      },
+      "Stance Specialist": {
+        type: "mobility_series",
+        required: 3,
+        category: "Assassin",
+        bonus:
+          "Combines your movement abilities with invisibility and shields. Taking damage reduces cooldowns, becoming as mobile as a phantom on the battlefield.",
+        augments: ["Master of Mobility", "Mind to Matter", "Stack 'em Mana"],
+        color: "#607D8B",
+      },
+      "Mana Control": {
+        type: "utility_series",
+        required: 2,
+        category: "Utility",
+        bonus:
+          "Converts Mana into damage and Health, and allows you to stack multiple items, giving you an overwhelming stat advantage.",
+        augments: ["Stack 'em Mana", "Mind to Matter"],
+        color: "#3F51B5",
+      },
+      "Moonlight Resonance": {
+        type: "damage_series",
+        required: 5,
+        category: "Damage",
+        bonus:
+          "Attack Speed increases vamp efficiency, and synergy with Ultimate Spellbook abilities deals massive amounts of damage. The higher your Attack Speed, the higher your sustain.",
+        augments: [
+          "Lunar Eclipse",
+          "Fury",
+          "Heavyweight Fighter",
+          "Bigger and Bigger",
+          "Leviathan",
+        ],
+        color: "#FFEB3B",
+      },
+      "Monstrous Might": {
+        type: "tank_series",
+        required: 3,
+        category: "Tank",
+        bonus:
+          "Grow in size while stealing Health and Movement Speed. Combined with increasing true damage and Resistances, you'll turn into a behemoth on the battlefield.",
+        augments: ["Bigger and Bigger", "Giant's Adversary", "Leviathan"],
+        color: "#4CAF50",
+      },
+      "Mini Might": {
+        type: "assassin_series",
+        required: 3,
+        category: "Assassin",
+        bonus:
+          "Shrink in size and gain Movement Speed and Armor Pen. Additionally, deal bonus damage against larger enemies, punching above your weight",
+        augments: ["Smaller and Smaller", "Mad Scientist", "Giant's Adversary"],
+        color: "#00BCD4",
+      },
+      "Salvation Link": {
+        type: "support_series",
+        required: 3,
+        category: "Support",
+        bonus:
+          "Your heals and shields spread to allies and reduce cooldowns, forming a continuous support system for your team.",
+        augments: ["Healing Force", "Transmissible Agents", "Virtuous Cycle"],
+        color: "#8BC34A",
+      },
+      "Echoing Shields": {
+        type: "defense_series",
+        required: 3,
+        category: "Tank",
+        bonus:
+          "While shielded, gain immunity to crowd control and bonus Movement Speed, and reflect incoming damage. Become a walking fortress on the battlefield!",
+        augments: ["Starfall Shield", "Twice Thrice", "Typhoon"],
+        color: "#009688",
+      },
+      "Shooter Expertise": {
+        type: "adc_series",
+        required: 4,
+        category: "ADC",
+        bonus:
+          "Unleash a dazzling barrage of attacks, clearing enemies with overwhelming force.",
+        augments: [
+          "Proximal Storm",
+          "Dashing",
+          "Dangerous Footwork",
+          "Hi-Precision Sharpshooter",
+        ],
+        color: "#FF9800",
+      },
+      Windrider: {
+        type: "speed_series",
+        required: 5,
+        category: "Utility",
+        bonus:
+          "Movement Speed increases your damage and Heal Power, applies slow, and reduces cooldowns, making it the core of your battle prowess",
+        augments: [
+          "Movement Speed Enhancement",
+          "Critical Strike Enhancement",
+          "Ascension",
+          "Pinnacle of Perfection",
+          "Stroke of Luck",
+        ],
+        color: "#CDDC39",
+      },
+      "Rampant Flaws": {
+        type: "crit_series",
+        required: 3,
+        category: "Damage",
+        bonus:
+          "Empowers all aspects of Critical Strikes for burst damage that dominates the battlefield.",
+        augments: [
+          "Critical Strike Enhancement",
+          "Pinnacle of Perfection",
+          "Stroke of Luck",
+        ],
+        color: "#FFC107",
+      },
+      "Control Expert": {
+        type: "control_series",
+        required: 3,
+        category: "Support",
+        bonus:
+          "A dual-loop strategy where crowd control and survivability fuel each other.",
+        augments: ["Supressive Vambrace", "Resolve", "Accelerated Control"],
+        color: "#9C27B0",
       },
     };
 
     // Individual augment effects
     this.individualAugments = {
-      Firebrand: {
-        series: "damage_dot",
-        effect:
-          "Basic Attacks deal 2% of target's Maximum Health as Magic Damage over 5s. Can stack infinitely.",
+      "Soulhunter's chain": {
+        series: "damage",
+        effect: "Marks enemies for enhanced damage tracking and chain combos",
         category: "Damage",
         addedIn: "August 2025",
       },
-      "Infernal Conduit": {
-        series: "damage_dot",
+      "Blade Array": {
+        series: "damage_aoe",
         effect:
-          "Abilities deal Physical Damage based on AD and AP scaling of target's Maximum Health over 5s. Can stack infinitely.",
+          "Creates magical arrays that automatically track and damage enemies",
         category: "Damage",
         addedIn: "August 2025",
       },
-      "Dive Bomber": {
+      "Mystic Punch": {
+        series: "damage",
+        effect: "Enhances basic attacks with explosive chain reactions",
+        category: "Damage",
+        addedIn: "August 2025",
+      },
+      "Health Marker": {
+        series: "sustain",
+        effect: "Marks targets for health-based damage and sustain effects",
+        category: "Tank",
+        addedIn: "August 2025",
+      },
+      "Dual Strike": {
+        series: "combo",
+        effect: "Enables dual-strike combos that weave attacks with abilities",
+        category: "Damage",
+        addedIn: "August 2025",
+      },
+      "Lion's Spellblade": {
+        series: "spellblade",
+        effect:
+          "Empowers abilities with spellblade effects for sustained combat",
+        category: "Damage",
+        addedIn: "August 2025",
+      },
+      "Heart of Steel": {
+        series: "tank",
+        effect: "Provides defensive bonuses and crowd control resistance",
+        category: "Tank",
+        addedIn: "August 2025",
+      },
+      "Imprisoning Chain": {
+        series: "control",
+        effect: "Creates unbreakable crowd control chains between enemies",
+        category: "Tank",
+        addedIn: "August 2025",
+      },
+      "Thief's Circle": {
         series: "utility",
-        effect: "Respawn Timer Reduction: 30%",
+        effect:
+          "Creates mobile gravity fields that trap and steal from enemies",
         category: "Utility",
+        addedIn: "August 2025",
       },
       "Heartsong Bolt": {
-        series: "utility",
-        effect: "Bonus Health Damage: 1%",
-        category: "Damage",
+        series: "support",
+        effect: "Converts healing power into damage output",
+        category: "Support",
       },
       "Starfall Shield": {
         series: "defense",
@@ -152,23 +374,21 @@ class AugmentOptimizer {
           "Hitting enemy with ability at long range reduces cooldown. Empowered: Reduces ultimate cooldown.",
         category: "ADC",
       },
-      "Blade Waltz": {
-        series: "melee",
-        effect:
-          "Gain Blade Waltz spell. Empowered: Reveals Vitals, striking deals true damage and restores Health.",
-        category: "Assassin",
-      },
     };
 
     this.presets = {
-      tank: ["Bear's Resilience", "Starfall Shield", "Ursine Strength"],
-      damage: ["Lion's Courage", "Firebrand", "Infernal Conduit"],
-      support: ["Doe's Grace", "Sacred Blessing", "Team Bond"],
-      assassin: ["Wolf's Stealth", "Shadow Strike", "Blade Waltz"],
+      tank: ["Heart of Steel", "Starfall Shield", "Spiny Counter"],
+      damage: ["Soulhunter's chain", "Lion's Spellblade", "Blade Array"],
+      support: [
+        "Heartsong Conversion",
+        "Healing Force",
+        "Transmissible Agents",
+      ],
+      assassin: ["Lupine Soul", "Shadow Strike", "Master of Mobility"],
       marksman: [
-        "Eagle's Vision",
         "Hi-Precision Sharpshooter",
-        "Precision Shot",
+        "Speed up, Meow!",
+        "Proximal Storm",
       ],
     };
 
