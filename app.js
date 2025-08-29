@@ -644,7 +644,21 @@ class AugmentOptimizer {
             <div class="recommendation-item" data-augment="${rec.augment}">
                 <div class="recommendation-header">
                     <h4 class="recommendation-name">${rec.augment}</h4>
-                    <span class="recommendation-priority">Priority ${rec.priority}</span>
+                    <div class="recommendation-badges">
+                        <span class="recommendation-priority">Priority ${
+                          rec.priority
+                        }</span>
+                        ${
+                          rec.chainCount > 1
+                            ? `<span class="chain-count-badge">${rec.chainCount} chains</span>`
+                            : ""
+                        }
+                        ${
+                          rec.efficiency && rec.efficiency < 999
+                            ? `<span class="efficiency-badge">${rec.efficiency} to</span>`
+                            : ""
+                        }
+                    </div>
                 </div>
                 <div class="recommendation-reason">${rec.reason}</div>
                 <div class="recommendation-effect">${rec.effect}</div>
@@ -666,6 +680,17 @@ class AugmentOptimizer {
     const recommendations = [];
     const allAugments = this.getAllAugments();
 
+    // Calculate how many chains each augment appears in
+    const augmentChainCount = {};
+    Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
+      chain.augments.forEach((augment) => {
+        augmentChainCount[augment] = (augmentChainCount[augment] || 0) + 1;
+      });
+    });
+
+    // Track processed augments to avoid duplicates
+    const processedAugments = new Set();
+
     // Find chains that are close to completion
     Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
       const selectedInChain = chain.augments.filter((augment) =>
@@ -677,23 +702,107 @@ class AugmentOptimizer {
       );
 
       missingAugments.forEach((augment) => {
+        // Skip if we've already processed this augment
+        if (processedAugments.has(augment)) return;
+        processedAugments.add(augment);
+
         let priority = 1;
         let reason = `Part of ${chainName} chain`;
 
-        // Higher priority for chains closer to completion
-        if (selectedInChain.length === chain.required - 1) {
-          priority = 5;
-          reason = `Complete ${chainName} chain (${selectedInChain.length}/${chain.required})`;
-        } else if (selectedInChain.length >= chain.required / 2) {
-          priority = 3;
-          reason = `Continue ${chainName} chain (${selectedInChain.length}/${chain.required})`;
+        // Base priority boost for multi-chain augments (versatility bonus)
+        const chainCount = augmentChainCount[augment] || 1;
+        if (chainCount > 1) {
+          priority += chainCount; // Each additional chain adds +1 priority
+          reason = `Versatile augment (${chainCount} chains)`;
         }
 
-        // Boost priority based on playstyle filter
-        if (
-          this.playstyleFilter &&
-          chain.category.includes(this.playstyleFilter)
-        ) {
+        // Find the best completion status across all chains this augment belongs to
+        let bestCompletionStatus = {
+          priority: 0,
+          reason: reason,
+          efficiency: 0,
+        };
+
+        Object.entries(this.augmentChains).forEach(
+          ([otherChainName, otherChain]) => {
+            if (otherChain.augments.includes(augment)) {
+              const selectedInOtherChain = otherChain.augments.filter((a) =>
+                this.selectedAugments.has(a)
+              ).length;
+
+              const augmentsNeededToComplete =
+                otherChain.required - selectedInOtherChain;
+              const completionProgress =
+                selectedInOtherChain / otherChain.required;
+
+              let chainPriority = 0;
+              let chainReason = reason;
+              let efficiency = 0; // Lower is better - fewer augments needed
+
+              // Granular priority based on augments needed to complete
+              if (augmentsNeededToComplete === 1) {
+                // Immediate completion - highest priority
+                chainPriority = 10;
+                efficiency = 1; // Only 1 augment needed
+                chainReason = `Complete ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
+              } else if (augmentsNeededToComplete === 2) {
+                // Near completion - very high priority
+                chainPriority = 8;
+                efficiency = 2; // 2 augments needed
+                chainReason = `Near completion of ${otherChainName} (need ${augmentsNeededToComplete} more)`;
+              } else if (augmentsNeededToComplete === 3) {
+                // Close to completion - high priority, with progress-based adjustment
+                chainPriority = 6 + completionProgress; // Add progress as decimal for tiebreaking
+                efficiency = 3; // 3 augments needed
+                chainReason = `Close to ${otherChainName} completion (need ${augmentsNeededToComplete} more)`;
+              } else if (completionProgress >= 0.5) {
+                // More than halfway - medium priority
+                chainPriority = 4 + completionProgress; // Add progress for tiebreaking
+                efficiency = augmentsNeededToComplete;
+                chainReason = `Continue ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
+              } else {
+                // Early stage - low priority
+                chainPriority = 2 + completionProgress; // Add progress for tiebreaking
+                efficiency = augmentsNeededToComplete;
+                chainReason = `Start ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
+              }
+
+              // Update if this chain offers better completion status
+              // Primary: higher priority, Secondary: lower efficiency (fewer augments needed)
+              const isBetter =
+                chainPriority > bestCompletionStatus.priority ||
+                (chainPriority === bestCompletionStatus.priority &&
+                  efficiency < bestCompletionStatus.efficiency);
+
+              if (isBetter) {
+                bestCompletionStatus = {
+                  priority: chainPriority,
+                  reason: chainReason,
+                  efficiency: efficiency,
+                };
+              }
+            }
+          }
+        );
+
+        // Apply the best completion bonus
+        priority += bestCompletionStatus.priority;
+        reason = bestCompletionStatus.reason;
+
+        // If it's a versatile augment, mention all applicable chains
+        if (chainCount > 1) {
+          const applicableChains = Object.entries(this.augmentChains)
+            .filter(([_, chain]) => chain.augments.includes(augment))
+            .map(([name, _]) => name);
+          reason += ` - Works with: ${applicableChains.join(", ")}`;
+        }
+
+        // Check if augment matches playstyle filter
+        const playstyleMatch =
+          this.playstyleFilter && chain.category.includes(this.playstyleFilter);
+
+        // Add small boost to priority for playstyle match (for display purposes)
+        if (playstyleMatch) {
           priority += 1;
         }
 
@@ -703,20 +812,24 @@ class AugmentOptimizer {
           reason,
           effect: allAugments[augment]?.effect || chain.bonus,
           chain: chainName,
+          chainCount: chainCount,
+          efficiency: bestCompletionStatus.efficiency || 999, // Higher number = less efficient
+          playstyleMatch: playstyleMatch || false,
         });
       });
     });
 
     // Add individual augments that match playstyle
     Object.entries(this.individualAugments).forEach(([name, augment]) => {
-      if (!this.selectedAugments.has(name)) {
+      if (!this.selectedAugments.has(name) && !processedAugments.has(name)) {
         let priority = 2;
         let reason = `Standalone augment - ${augment.category}`;
 
-        if (
+        const playstyleMatch =
           this.playstyleFilter &&
-          augment.category.includes(this.playstyleFilter)
-        ) {
+          augment.category.includes(this.playstyleFilter);
+
+        if (playstyleMatch) {
           priority = 3;
           reason = `Matches your ${this.playstyleFilter} playstyle`;
         }
@@ -732,12 +845,31 @@ class AugmentOptimizer {
           reason,
           effect: augment.effect,
           chain: null,
+          chainCount: 0,
+          efficiency: 999, // Standalone augments have lowest efficiency priority
+          playstyleMatch: playstyleMatch || false,
         });
       }
     });
 
-    // Sort by priority (highest first)
-    return recommendations.sort((a, b) => b.priority - a.priority);
+    // Sort by playstyle match first (matching playstyle takes precedence),
+    // then by priority (highest first), then by efficiency (lowest number = fewer augments needed), then by chain count (most versatile)
+    return recommendations.sort((a, b) => {
+      // Primary: playstyle match (true > false)
+      if (a.playstyleMatch !== b.playstyleMatch) {
+        return b.playstyleMatch - a.playstyleMatch;
+      }
+      // Secondary: priority (highest first)
+      if (b.priority !== a.priority) {
+        return b.priority - a.priority;
+      }
+      // Tertiary: efficiency (fewer augments needed is better)
+      if (a.efficiency !== b.efficiency) {
+        return a.efficiency - b.efficiency;
+      }
+      // Quaternary: chain count (more versatile is better)
+      return (b.chainCount || 0) - (a.chainCount || 0);
+    });
   }
 
   loadPreset(presetName) {
@@ -797,7 +929,7 @@ class AugmentOptimizer {
                 : ""
             }
             <div class="form-group">
-                <button class="btn btn--primary btn--full-width" onclick="app.toggleAugment('${augmentName}'); app.closeModal();">
+                <button class="btn btn--primary btn--full-width modal-toggle-btn" data-augment="${augmentName}">
                     ${
                       this.selectedAugments.has(augmentName) ? "Remove" : "Add"
                     } Augment
@@ -806,6 +938,15 @@ class AugmentOptimizer {
         `;
 
     modal.classList.remove("hidden");
+
+    // Add event listener for the toggle button
+    const toggleBtn = modal.querySelector(".modal-toggle-btn");
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        this.toggleAugment(augmentName);
+        this.closeModal();
+      });
+    }
   }
 
   closeModal() {
