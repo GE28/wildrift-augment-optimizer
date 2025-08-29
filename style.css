@@ -162,7 +162,7 @@
     --color-bg-6: rgba(194, 65, 12, 0.15); /* Dark orange */
     --color-bg-7: rgba(190, 24, 93, 0.15); /* Dark pink */
     --color-bg-8: rgba(8, 145, 178, 0.15); /* Dark cyan */
-    
+
     /* Semantic Color Tokens (Dark Mode) */
     --color-background: var(--color-charcoal-700);
     --color-surface: var(--color-charcoal-800);
@@ -222,7 +222,7 @@
   --color-bg-6: rgba(194, 65, 12, 0.15); /* Dark orange */
   --color-bg-7: rgba(190, 24, 93, 0.15); /* Dark pink */
   --color-bg-8: rgba(8, 145, 178, 0.15); /* Dark cyan */
-  
+
   /* Semantic Color Tokens (Dark Mode) */
   --color-background: var(--color-charcoal-700);
   --color-surface: var(--color-charcoal-800);
@@ -268,7 +268,7 @@
   --color-brown-600-rgb: 94, 82, 64;
   --color-teal-500-rgb: 33, 128, 141;
   --color-slate-900-rgb: 19, 52, 59;
-  
+
   /* Semantic Color Tokens (Light Mode) */
   --color-background: var(--color-cream-50);
   --color-surface: var(--color-cream-100);
@@ -732,9 +732,9 @@ select.form-control {
 }
 
 @font-face {
-  font-family: 'FKGroteskNeue';
-  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2')
-    format('woff2');
+  font-family: "FKGroteskNeue";
+  src: url("https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2")
+    format("woff2");
 }
 
 /* END PERPLEXITY DESIGN SYSTEM */
@@ -742,17 +742,17 @@ select.form-control {
 
 /* Dark theme override */
 :root {
-  --wr-primary: #1E3A8A;
-  --wr-secondary: #7C3AED;
-  --wr-accent: #06B6D4;
-  --wr-success: #10B981;
-  --wr-warning: #F59E0B;
-  --wr-danger: #EF4444;
-  --wr-dark-bg: #0F172A;
-  --wr-dark-surface: #1E293B;
+  --wr-primary: #1e3a8a;
+  --wr-secondary: #7c3aed;
+  --wr-accent: #06b6d4;
+  --wr-success: #10b981;
+  --wr-warning: #f59e0b;
+  --wr-danger: #ef4444;
+  --wr-dark-bg: #0f172a;
+  --wr-dark-surface: #1e293b;
   --wr-dark-border: #334155;
-  --wr-text-light: #F1F5F9;
-  --wr-text-muted: #94A3B8;
+  --wr-text-light: #f1f5f9;
+  --wr-text-muted: #94a3b8;
 }
 
 /* Base overrides for dark theme */
@@ -1022,20 +1022,20 @@ body {
 .recommendations {
   display: flex;
   flex-direction: column;
-  gap: var(--space-16);
+  /* gap: var(--space-8); */
 }
 
 .empty-state {
   text-align: center;
   color: var(--wr-text-muted);
-  padding: var(--space-32);
+  padding: var(--space-20);
 }
 
 .recommendation-item {
   background: rgba(var(--wr-success), 0.1);
   border: 1px solid rgba(var(--wr-success), 0.3);
   border-radius: var(--radius-base);
-  padding: var(--space-16);
+  padding: var(--space-4);
   cursor: pointer;
   transition: all var(--duration-normal) var(--ease-standard);
 }
@@ -1050,11 +1050,11 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-4);
 }
 
 .recommendation-name {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   color: var(--wr-text-light);
   margin: 0;
@@ -1063,21 +1063,46 @@ body {
 .recommendation-priority {
   background: var(--wr-success);
   color: var(--wr-dark-bg);
-  padding: var(--space-2) var(--space-8);
+  padding: var(--space-1) var(--space-6);
   border-radius: var(--radius-full);
-  font-size: var(--font-size-xs);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+}
+
+.recommendation-badges {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.chain-count-badge {
+  background: var(--wr-secondary);
+  color: var(--wr-dark-bg);
+  padding: var(--space-1) var(--space-6);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+}
+
+.efficiency-badge {
+  background: var(--wr-warning);
+  color: var(--wr-dark-bg);
+  padding: var(--space-1) var(--space-6);
+  border-radius: var(--radius-full);
+  font-size: 10px;
   font-weight: var(--font-weight-bold);
 }
 
 .recommendation-reason {
   color: var(--wr-text-muted);
-  font-size: var(--font-size-sm);
-  margin-bottom: var(--space-8);
+  font-size: 11px;
+  margin-bottom: var(--space-4);
 }
 
 .recommendation-effect {
   color: var(--wr-text-light);
-  font-size: var(--font-size-sm);
+  font-size: 11px;
+  display: none;
 }
 
 /* Presets */
@@ -1225,7 +1250,7 @@ body {
   .header__title {
     font-size: var(--font-size-3xl);
   }
-  
+
   .presets {
     justify-content: center;
   }
@@ -1236,7 +1261,7 @@ body {
     padding-left: var(--space-12);
     padding-right: var(--space-12);
   }
-  
+
   .modal__content {
     width: 95%;
   }
