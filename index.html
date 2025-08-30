@@ -36,16 +36,63 @@
                   <div class="controls">
                     <div class="form-group">
                       <label class="form-label">Playstyle Filter</label>
-                      <select class="form-control" id="playstyleFilter">
-                        <option value="">All Playstyles</option>
-                        <option value="Tank">Tank</option>
-                        <option value="Damage">Damage</option>
-                        <option value="Support">Support</option>
-                        <option value="Assassin">Assassin</option>
-                        <option value="ADC">ADC</option>
-                        <option value="Team Synergy">Team Synergy</option>
-                        <option value="Utility">Utility</option>
-                      </select>
+                      <div
+                        class="playstyle-filter-container"
+                        id="playstyleFilter"
+                      >
+                        <div class="playstyle-option">
+                          <input
+                            type="checkbox"
+                            id="filter-tank"
+                            value="Tank"
+                          />
+                          <label for="filter-tank">Tank</label>
+                        </div>
+                        <div class="playstyle-option">
+                          <input
+                            type="checkbox"
+                            id="filter-damage"
+                            value="Damage"
+                          />
+                          <label for="filter-damage">Damage</label>
+                        </div>
+                        <div class="playstyle-option">
+                          <input
+                            type="checkbox"
+                            id="filter-support"
+                            value="Support"
+                          />
+                          <label for="filter-support">Support</label>
+                        </div>
+                        <div class="playstyle-option">
+                          <input
+                            type="checkbox"
+                            id="filter-assassin"
+                            value="Assassin"
+                          />
+                          <label for="filter-assassin">Assassin</label>
+                        </div>
+                        <div class="playstyle-option">
+                          <input type="checkbox" id="filter-adc" value="ADC" />
+                          <label for="filter-adc">ADC</label>
+                        </div>
+                        <div class="playstyle-option">
+                          <input
+                            type="checkbox"
+                            id="filter-team-synergy"
+                            value="Team Synergy"
+                          />
+                          <label for="filter-team-synergy">Team Synergy</label>
+                        </div>
+                        <div class="playstyle-option">
+                          <input
+                            type="checkbox"
+                            id="filter-utility"
+                            value="Utility"
+                          />
+                          <label for="filter-utility">Utility</label>
+                        </div>
+                      </div>
                     </div>
 
                     <div class="form-group">

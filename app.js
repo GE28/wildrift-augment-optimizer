@@ -5,7 +5,7 @@ class AugmentOptimizer {
   constructor() {
     this.selectedAugments = new Set();
     this.suggestionCount = 3;
-    this.playstyleFilter = "";
+    this.playstyleFilter = [];
     this.searchQuery = "";
 
     // Augment data from the application data
@@ -299,80 +299,704 @@ class AugmentOptimizer {
       },
     };
 
+    // this.individualAugments = {
+    //   "Soulhunter's chain": {
+    //     series: "damage",
+    //     effect: "Marks enemies for enhanced damage tracking and chain combos",
+    //     category: "Damage",
+    //     addedIn: "August 2025",
+    // },
+
     // Individual augment effects
     this.individualAugments = {
-      "Soulhunter's chain": {
-        series: "damage",
-        effect: "Marks enemies for enhanced damage tracking and chain combos",
-        category: "Damage",
-        addedIn: "August 2025",
+      "Accelerated Control": {
+        description:
+          "Greatly reduces the cooldowns of crowd control abilities.",
+        rarity: "Gold",
+        roles: ["Tank", "Support"],
+        types: ["Crowd Control"],
+      },
+      "Apex Inventor": {
+        description: "Greatly reduces item cooldowns.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Solo Powerhouse"],
+      },
+      Ascension: {
+        description:
+          "Critical Strikes reduce your ultimate ability's cooldown.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Critical Strike"],
+      },
+      "Backup Battery": {
+        description:
+          "Reanimate temporarily to continue fighting after you die. You also revive faster.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Revival"],
+      },
+      "Be Magical": {
+        description: "Converts bonus Attack Damage into Ability Power.",
+        rarity: "Gold",
+        roles: ["Mage"],
+        types: ["Solo Powerhouse"],
+      },
+      "Be Physical": {
+        description:
+          "Converts Ability Power into Attack Damage and greatly increases Attack Damage.",
+        rarity: "Prismatic",
+        roles: ["Fighter", "Assassin", "Adc"],
+        types: ["Solo Powerhouse"],
+      },
+      "Bigger and Bigger": {
+        description:
+          "When you get a kill, grow in size and permanently gain bonus Health.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter"],
+        types: ["Size"],
+      },
+      "Black Hole": {
+        description:
+          "For a period of time, pull in nearby enemies. The more enemy champions nearby, the more Armor and Magic Resist you gain.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter"],
+        types: ["Solo Powerhouse"],
       },
       "Blade Array": {
-        series: "damage_aoe",
-        effect:
-          "Creates magical arrays that automatically track and damage enemies",
-        category: "Damage",
-        addedIn: "August 2025",
+        description:
+          "Summon a blade array when your ability hits an enemy, dealing your attack's damage and restoring Health.",
+        rarity: "Gold",
+        roles: ["Fighter"],
+        types: ["Roaring Lion"],
       },
-      "Mystic Punch": {
-        series: "damage",
-        effect: "Enhances basic attacks with explosive chain reactions",
-        category: "Damage",
-        addedIn: "August 2025",
+      "Bounce, Meow!": {
+        description:
+          "Projectiles have a chance to ricochet to nearby enemy champions on hit.",
+        rarity: "Prismatic",
+        roles: ["Mage"],
+        types: ["Agile Cat"],
       },
-      "Health Marker": {
-        series: "sustain",
-        effect: "Marks targets for health-based damage and sustain effects",
-        category: "Tank",
-        addedIn: "August 2025",
+      "Burn, Meow!": {
+        description:
+          "Enemies affected by the magic circles take damage over time.",
+        rarity: "Silver",
+        roles: ["Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Agile Cat"],
+      },
+      "Charged Shield": {
+        description:
+          "Taking damage build energy. At full energy, gain a shield, deal damage, and reset basic ability cooldowns.",
+        rarity: "Prismatic",
+        roles: ["Tank"],
+        types: ["Wild Bear"],
+      },
+      "Combo Strike": {
+        description:
+          "After using a movement ability, your next attack strikes twice.",
+        rarity: "Gold",
+        roles: ["Assassin"],
+        types: ["Shadow Wolf"],
+      },
+      "Cool Down, Meow!": {
+        description: "Reduces the cooldowns of all projectile abilities.",
+        rarity: "Silver",
+        roles: ["Mage"],
+        types: ["Agile Cat"],
+      },
+      "Critical Strike Enhancement": {
+        description:
+          "The higher your Critical Rate, the higher your Critical Strike Damage. Gain Movement Speed When you Critically Strike.",
+        rarity: "Silver",
+        roles: ["Adc"],
+        types: ["Critical Strike"],
+      },
+      "Cursed Blight": {
+        description:
+          "On hit, your attacks and abilities slow the target and reduce Attack Speed. After collecting 4 Forbidden Augments, you'll be credited for all enemy champion kills.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Forbidden"],
+      },
+      "Dangerous Footwork": {
+        description:
+          "Your attacks fire missiles at nearby enemies. Missiles apply on-hit effects.",
+        rarity: "Prismatic",
+        roles: ["Adc"],
+        types: ["Attack"],
+      },
+      Dashing: {
+        description: "Reduces the cooldowns of movement abilities.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Movement"],
+      },
+      "Dive Bomber": {
+        description:
+          "Deal high damage to nearby enemies upon death. You also revive faster.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Revival"],
+      },
+      "Dual Wield": {
+        description:
+          "Reduces Attack Damage and Ability Power in exchange for a great Attack Speed boost.",
+        rarity: "Gold",
+        roles: ["Fighter", "Adc"],
+        types: ["Solo Powerhouse"],
       },
       "Dual Strike": {
-        series: "combo",
-        effect: "Enables dual-strike combos that weave attacks with abilities",
-        category: "Damage",
-        addedIn: "August 2025",
+        description:
+          "Hitting a target with an ability empowers your next attack, and hitting a target with an attack empowers your next ability. Both deal bonus true damage.",
+        rarity: "Silver",
+        roles: ["Fighter"],
+        types: ["Roaring Lion"],
       },
-      "Lion's Spellblade": {
-        series: "spellblade",
-        effect:
-          "Empowers abilities with spellblade effects for sustained combat",
-        category: "Damage",
-        addedIn: "August 2025",
+      "Escape Artist": {
+        description:
+          "Taking damage reduces the cooldowns of your movement abilities.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter"],
+        types: ["Movement"],
+      },
+      "Ethereal Weapon": {
+        description: "[Item] Abilities apply on-hit effects.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Solo Powerhouse"],
+      },
+      Eureka: {
+        description:
+          "Gain Ability Haste based on your Attack Damage and Ability Power.",
+        rarity: "Prismatic",
+        roles: ["Mage", "Support"],
+        types: ["Solo Powerhouse"],
+      },
+      Executioner: {
+        description: "Refreshes basic ability cooldowns when you get a kill.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Solo Powerhouse"],
+      },
+      "Forbidden Bliss": {
+        description:
+          "Gain Omnivamp. After collecting 4 Forbidden Augments, you'll be credited for all enemy champion kills.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Forbidden"],
+      },
+      "Forbidden Evil": {
+        description:
+          "Your abilities grant permanent Adaptive Force on hit. After collecting 4 Forbidden Augments, you'll be credited for all enemy champion kills.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Forbidden"],
+      },
+      "Forbidden Rage": {
+        description:
+          "Greatly increases Critical Damage, true damage, and damage over time. After collecting 4 Forbidden Augments, you'll be credited for all enemy champion kills.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Forbidden"],
+      },
+      Fury: {
+        description:
+          "Grow in size and gain Armor and Resist after taking damage.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter"],
+        types: ["Size"],
+      },
+      "Giant's Adversary": {
+        description:
+          "The smaller your size, the higher your damage. Enlargement effects gained make you shrink instead.",
+        rarity: "Prismatic",
+        roles: ["Assassin", "Mage", "Adc"],
+        types: ["Size"],
+      },
+      "Healing Force": {
+        description:
+          "When you heal a target with an ability, reduce your basic ability cooldown.",
+        rarity: "Silver",
+        roles: ["Support"],
+        types: ["Recovery"],
+      },
+      "Health Marker": {
+        description:
+          "Your abilities mark enemies on hit. Attacking marked enemies restores Health.",
+        rarity: "Gold",
+        roles: ["Adc"],
+        types: ["Roaring Lion"],
       },
       "Heart of Steel": {
-        series: "tank",
-        effect: "Provides defensive bonuses and crowd control resistance",
-        category: "Tank",
-        addedIn: "August 2025",
+        description:
+          "Mark nearby enemies. Triggering a mark pulls the enemy toward you and permanently increases your Armor and Magic Resist.",
+        rarity: "Prismatic",
+        roles: ["Tank"],
+        types: ["Wild Bear"],
       },
-      "Imprisoning Chain": {
-        series: "control",
-        effect: "Creates unbreakable crowd control chains between enemies",
-        category: "Tank",
-        addedIn: "August 2025",
-      },
-      "Thief's Circle": {
-        series: "utility",
-        effect:
-          "Creates mobile gravity fields that trap and steal from enemies",
-        category: "Utility",
-        addedIn: "August 2025",
+      "Heartsong Blade": {
+        description:
+          "Spellblade: After granting allies a bonus, your next attack deals additional damage.",
+        rarity: "Silver",
+        roles: ["Support"],
+        types: ["Sacred Doe", "Spellblade"],
       },
       "Heartsong Bolt": {
-        series: "support",
-        effect: "Converts healing power into damage output",
-        category: "Support",
+        description:
+          "Gain an orb that builds up energy through heals and shields. The orb fires magic bolts and permanently increases your Heal and Shield Power.",
+        rarity: "Prismatic",
+        roles: ["Support"],
+        types: ["Sacred Doe"],
       },
-      "Starfall Shield": {
-        series: "defense",
-        effect: "True Damage Ratio when Shield is in effect: 30%",
-        category: "Tank",
+      "Heartsong Conversion": {
+        description:
+          "The higher your Heal and Shield Power, the higher your Ability Haste.",
+        rarity: "Gold",
+        roles: ["Support"],
+        types: ["Sacred Doe"],
+      },
+      "Heartsong Corrosion": {
+        description:
+          "Your heals deal damage over time to enemies and steal their Heal and Shield Power.",
+        rarity: "Silver",
+        roles: ["Support"],
+        types: ["Sacred Doe"],
+      },
+      "Heartsong Restoration": {
+        description:
+          "Greatly increases Heal and Shield Power and reduces ability cost.",
+        rarity: "Silver",
+        roles: ["Support"],
+        types: ["Sacred Doe"],
+      },
+      "Heartsong Speed": {
+        description:
+          "Increases Heal and Shield Power. The higher your Heal and Shield Power, the faster you are.",
+        rarity: "Silver",
+        roles: ["Support"],
+        types: ["Sacred Doe"],
+      },
+      "Heavyweight Fighter": {
+        description:
+          "The higher your Health, the larger your size and the more damage your attack deals.",
+        rarity: "Gold",
+        roles: ["Tank"],
+        types: ["Siza"],
       },
       "Hi-Precision Sharpshooter": {
-        series: "marksman",
-        effect:
-          "Hitting enemy with ability at long range reduces cooldown. Empowered: Reduces ultimate cooldown.",
-        category: "ADC",
+        description:
+          "Hitting an enemy with an ability at long range reduces the cooldowns of this ability and your ultimate ability.",
+        rarity: "Gold",
+        roles: ["Mage"],
+        types: ["Solo Powerhouse"],
+      },
+      "Imprisoning Chain": {
+        description:
+          "When you crowd control an enemy, fire a chain that deals damage over time. If they break free, pull them back to you.",
+        rarity: "Prismatic",
+        roles: ["Tank"],
+        types: ["Wild Bear"],
+      },
+      "Kaboom, Meow!": {
+        description:
+          "Build up Energy stacks when dealing damage. At full stacks, summon a magic circle that rains down bombs.",
+        rarity: "Prismatic",
+        roles: ["Mage"],
+        types: ["Agile Cat"],
+      },
+      "Kinetic Cooldown": {
+        description: "Moving reduces your basic ability cooldowns.",
+        rarity: "Silver",
+        roles: ["Support"],
+        types: ["Movement", "Speed"],
+      },
+      "Late-Game Carry": {
+        description:
+          "Earn gold continuously. The more gold you have, the higher your damage.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Solo Powerhouse"],
+      },
+      Leviathan: {
+        description:
+          "The larger your size, the higher your damage. Shrinkage effects gained make you big instead.",
+        rarity: "Prismatic",
+        roles: ["Fighter"],
+        types: ["Size"],
+      },
+      "Lightning Equipment": {
+        description:
+          "Dealing damage with items calls down lightning that slows enemies.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Movement", "Speed"],
+      },
+      "Lion's Spellblade": {
+        description:
+          "After hitting a target with an ability, your next attack summons a clone that attacks.",
+        rarity: "Prismatic",
+        roles: ["Fighter"],
+        types: ["Roaring Lion", "Spellblade"],
+      },
+      "Lord of Spellblade": {
+        description:
+          "Attacks have a 75% chance to reduce all of Spellblade's effect cooldowns.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Spellblade"],
+      },
+      "Lunar Eclipse": {
+        description:
+          "The higher your Attack Speed, the higher your Physical Vamp.",
+        rarity: "Gold",
+        roles: ["Adc"],
+        types: ["Vamp"],
+      },
+      "Lupine Miasma": {
+        description:
+          "Spellblade: After using an ability, your next attack creates a Lupine Miasma domain that grants you invisibility while you're within it.",
+        rarity: "Prismatic",
+        roles: ["Assassin"],
+        types: ["Shadow Wolf", "Spellblade"],
+      },
+      "Lupine Soul": {
+        description:
+          "Summon a Lupine Soul when dashing. Lupine Soul triggers the effects of Shadow Wolf Augments.",
+        rarity: "Prismatic",
+        roles: ["Assassin"],
+        types: ["Shadow Wolf"],
+      },
+      "Mad Scientist": {
+        description:
+          "Reduces your size and greatly increases your Movement Speed and Ability Haste.",
+        rarity: "Prismatic",
+        roles: ["Mage", "Support"],
+        types: ["Size"],
+      },
+      "Master of Duality": {
+        description:
+          "Gain Ability Power when you hit an enemy with an attack and Attack Damage when you hit them with an ability.",
+        rarity: "Prismatic",
+        roles: ["Mage", "Adc"],
+        types: ["Solo Powerhouse"],
+      },
+      "Master of Mobility": {
+        description:
+          "Gain a large amount of Ability Haste for movement abilities. Basic abilities are treated as movement abilities.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Movement"],
+      },
+      "Master Thief": {
+        description: "Enhances all stealing effects and grants Omnivamp.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Thief"],
+      },
+      "Melee Shield": {
+        description:
+          "Gain a shield when you hit an enemy at close range. (10s cooldown per enemy)",
+        rarity: "Silver",
+        roles: ["Fighter"],
+        types: ["Shield"],
+      },
+      "Mighty Shield": {
+        description:
+          "Become immune to crowd control and gain Movement speed while shielded.",
+        rarity: "Silver",
+        roles: ["Fighter"],
+        types: ["Shield"],
+      },
+      "Mind to Matter": {
+        description: "The higher your Mana, the higher your Health.",
+        rarity: "Silver",
+        roles: ["Mage"],
+        types: ["Mana"],
+      },
+      "Moonlit Falcon Strike": {
+        description:
+          "Fire a missile that deals attack damage when you hit an enemy with an ability.",
+        rarity: "Gold",
+        roles: ["Adc"],
+        types: ["Hunting Eagle"],
+      },
+      "Movement Speed Enhancement": {
+        description:
+          "The higher your Movement Speed, the higher your damage and Heal and Shield Power.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Movement", "Speed"],
+      },
+      "Mystic Punch": {
+        description: "Attacks reduce all ability cooldowns.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Roaring Lion"],
+      },
+      "Nebula Rift": {
+        description:
+          "Grow in size. When taking damage, you have a chance to steal Health and Movement Speed from nearby enemies.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter"],
+        types: ["Size"],
+      },
+      "Nowhere to Run, Meow!": {
+        description: "Your magic circles and traps will shift over time.",
+        rarity: "Prismatic",
+        roles: ["Mage"],
+        types: ["Agile Cat"],
+      },
+      "Piercing Feathers": {
+        description: "Your Critical Strikes fire missiles at the target.",
+        rarity: "Silver",
+        roles: ["Adc"],
+        types: ["Hunting Eagle"],
+      },
+      "Piercing Spellblade": {
+        description:
+          "Spellblade: After using an ability, your next attack deals damage over time to enemies in an area and reduces their Armor and Magic Resist.",
+        rarity: "Gold",
+        roles: ["Assassin"],
+        types: ["Shadow Wolf", "Spellblade"],
+      },
+      "Pinnacle of Perfection": {
+        description:
+          "Critical Rate is capped at 25%. Excess Critical Rate is converted into high Critical Strike Damage.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Critical Strike"],
+      },
+      Plaguebrand: {
+        description:
+          "Your attacks mark enemies. At 5 stacks, deal damage in an area, slow enemies, and spread the mark.",
+        rarity: "Prismatic",
+        roles: ["Adc"],
+        types: ["Hunting Eagle"],
+      },
+      "Plume Barrage": {
+        description:
+          "Your attacks splash damage. Critical Strikes empower the splash effect.",
+        rarity: "Prismatic",
+        roles: ["Adc"],
+        types: ["Hunting Eagle"],
+      },
+      "Proximal Storm": {
+        description:
+          "Your ability damage and heals can Critically Strike. Gain 15% Critical Rate.",
+        rarity: "Prismatic",
+        roles: ["Mage", "Adc", "Support"],
+        types: ["Critical Strike"],
+      },
+      Resolve: {
+        description:
+          "Quickly restore a large amount of Health when your Health is low. (Cooldown is reduced whenever you apply a crowd control effect.)",
+        rarity: "Gold",
+        roles: ["Tank", "Support"],
+        types: ["Crowd Control"],
+      },
+      "Restless Restoration": {
+        description: "Moving restores Health over time.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Recovery"],
+      },
+      "Scoped Weapons": {
+        description: "Increases Attack Range.",
+        rarity: "Gold",
+        roles: ["Fighter", "Adc"],
+        types: ["Solo Powerhouse"],
+      },
+      "Slow Detonation": {
+        description: "When slowing an enemy, deal damage to enemies nearby.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Movement", "Speed"],
+      },
+      "Smaller and Smaller": {
+        description:
+          "When you get a kill, shrink in size and permanently gain Movement Speed.",
+        rarity: "Prismatic",
+        roles: ["Assassin", "Mage", "Adc"],
+        types: ["Size"],
+      },
+      "Soulhunter's Chain": {
+        description:
+          "Your abilities mark enemies on hit. Your attacks damage marked enemies.",
+        rarity: "Gold",
+        roles: ["Fighter"],
+        types: ["Roaring Lion"],
+      },
+      "Speed Thief": {
+        description: "Gain Movement Speed when you slow enemies.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Movement", "Speed"],
+      },
+      "Speed Up, Meow!": {
+        description: "Greatly increases the speed and damage of projectiles.",
+        rarity: "Prismatic",
+        roles: ["Mage"],
+        types: ["Agile Cat"],
+      },
+      "Spellblade Combo": {
+        description:
+          "Spellblade: After using an ability, your next attack strikes twice.",
+        rarity: "Gold",
+        roles: ["Assassin"],
+        types: ["Shadow Wolf", "Spellblade"],
+      },
+      "Spiny Counter": {
+        description:
+          "When hit by an enemy champion's attack or when an enemy chanpion nearby casts an ability, deal magic damage to the attack or caster",
+        rarity: "Silver",
+        roles: ["Tank"],
+        types: ["Solo Powerhouse"],
+      },
+      "Splintered Chakrams": {
+        description:
+          "Your attacks store Wing Blades. Hitting an enemy with an ability fires them. At max stacks, attacks also fire Wing Blades.",
+        rarity: "Prismatic",
+        roles: ["Adc"],
+        types: ["Hunting Eagle"],
+      },
+      "Stack 'em Mana": {
+        description:
+          "You can have more than one item from the Tear of the Goddess series in your inventory.",
+        rarity: "Silver",
+        roles: ["Mage", "Adc"],
+        types: ["Mana"],
+      },
+      "Stack Assault": {
+        description:
+          "The more attacks you hit an enemy champion with, the higher the damage of your attacks against them.",
+        rarity: "Prismatic",
+        roles: ["Adc"],
+        types: ["Hunting Eagle"],
+      },
+      "Stackosaurus Rex": {
+        description: "Effects stack much faster.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Solo Powerhouse"],
+      },
+      "Starfall Shield": {
+        description: "Upon gaining a shield, deal damage in an area.",
+        rarity: "Silver",
+        roles: ["Tank"],
+        types: ["Shield"],
+      },
+      "Starlight Cross": {
+        description:
+          "On hit, your attacks and abilities deal damage in an area. The higher your Mana, the higher the damage.",
+        rarity: "Prismatic",
+        roles: ["Mage"],
+        types: ["Mana"],
+      },
+      "Stealth Mode": {
+        description: "Become invisible after using a movement ability.",
+        rarity: "Gold",
+        roles: ["Assassin"],
+        types: ["Movement"],
+      },
+      "Stroke of Luck": {
+        description:
+          "Increases Critical Rate by 50% and greatly increases your luck.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Solo Powerhouse"],
+      },
+      "Suppressive Vambrace": {
+        description:
+          "Applying crowd control effects grants stacking Armor and Magic Resist.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter"],
+        types: ["Crowd Control"],
+      },
+      "Swift and Safe": {
+        description: "Gain a shield after using a movement ability.",
+        rarity: "Silver",
+        roles: ["Fighter", "Assassin", "Adc"],
+        types: ["Movement"],
+      },
+      "Tectonic Rift": {
+        description:
+          "Using movement abilities summons an explosive crack along your path, stealing the enemy's Movement Speed.",
+        rarity: "Prismatic",
+        roles: ["Assassin"],
+        types: ["Shadow Wolf", "Thief"],
+      },
+      "Thief's Circle": {
+        description:
+          "Applying crowd control steals the affected enemy's size, Armor, and Magic Resist, and deals damage.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter"],
+        types: ["Wild Bear", "Thief"],
+      },
+      "Transmissible Agents": {
+        description:
+          "Your heals and shields are also granted to another teammate.",
+        rarity: "Prismatic",
+        roles: ["Support"],
+        types: ["Recovery"],
+      },
+      "Truce Shield": {
+        description:
+          "Gain a shield upon leaving combat. The higher your Adaptive Force, the more damage the shield absorbs.",
+        rarity: "Gold",
+        roles: ["Tank"],
+        types: ["Shield"],
+      },
+      "Twice Thrice": {
+        description: "Your attacks have a chance of striking twice.",
+        rarity: "Gold",
+        roles: ["Adc"],
+        types: ["Attack"],
+      },
+      Typhoon: {
+        description:
+          "Your attacks call down lightning bolts and apply on-hits.",
+        rarity: "Silver",
+        roles: ["Adc"],
+        types: ["Attack"],
+      },
+      "Unstoppable Surge": {
+        description:
+          "Spellblade: After using an ability, your next attack deals damage in an area and grants Armor and Magic Resist.",
+        rarity: "Silver",
+        roles: ["Tank"],
+        types: ["Wild Bear", "Spellblade"],
+      },
+      "Vengegul Counter": {
+        description: "After taking damage 4 times, attack the attacker.",
+        rarity: "Gold",
+        roles: ["Tank"],
+        types: ["Wild Bear"],
+      },
+      "Virtuous Cycle": {
+        description: "Healing grants a shield, and a shield grants healing.",
+        rarity: "Silver",
+        roles: ["Support"],
+        types: ["Recovery"],
+      },
+      Vulnerability: {
+        description:
+          "[Critical Strike] Your item damage and your abilities' damage over time effects can Critically Strike. Gain 25% Critical Rate.",
+        rarity: "Silver",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Critical Strike"],
+      },
+      Whale: {
+        description:
+          "You can buy items anytime and gain access to unique items.",
+        rarity: "Prismatic",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Solo Powerhouse"],
+      },
+      Windwalk: {
+        description: "Gain Movement Speed when you heal or shield a target.",
+        rarity: "Gold",
+        roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
+        types: ["Movement", "Speed"],
       },
     };
 
@@ -400,9 +1024,20 @@ class AugmentOptimizer {
     document
       .getElementById("playstyleFilter")
       .addEventListener("change", (e) => {
-        this.playstyleFilter = e.target.value;
-        this.renderAugmentCategories();
-        this.updateRecommendations();
+        if (e.target.type === "checkbox") {
+          const value = e.target.value;
+          if (e.target.checked) {
+            if (!this.playstyleFilter.includes(value)) {
+              this.playstyleFilter.push(value);
+            }
+          } else {
+            this.playstyleFilter = this.playstyleFilter.filter(
+              (filter) => filter !== value
+            );
+          }
+          this.renderAugmentCategories();
+          this.updateRecommendations();
+        }
       });
 
     document.getElementById("augmentSearch").addEventListener("input", (e) => {
@@ -413,6 +1048,14 @@ class AugmentOptimizer {
 
     document.getElementById("resetBtn").addEventListener("click", () => {
       this.selectedAugments.clear();
+      this.playstyleFilter = [];
+
+      // Clear all playstyle checkboxes
+      const checkboxes = document.querySelectorAll(
+        '#playstyleFilter input[type="checkbox"]'
+      );
+      checkboxes.forEach((checkbox) => (checkbox.checked = false));
+
       this.renderAugmentCategories();
       this.updateChainProgress();
       this.updateRecommendations();
@@ -461,7 +1104,10 @@ class AugmentOptimizer {
     // Filter categories by playstyle
     const filteredCategories = {};
     Object.entries(categories).forEach(([category, augments]) => {
-      if (!this.playstyleFilter || category.includes(this.playstyleFilter)) {
+      if (
+        this.playstyleFilter.length === 0 ||
+        this.playstyleFilter.some((filter) => category.includes(filter))
+      ) {
         // Filter augments by search query
         const filteredAugments = augments.filter(
           (augment) =>
@@ -788,7 +1434,10 @@ class AugmentOptimizer {
 
         // Check if augment matches playstyle filter
         const playstyleMatch =
-          this.playstyleFilter && chain.category.includes(this.playstyleFilter);
+          this.playstyleFilter.length > 0 &&
+          this.playstyleFilter.some((filter) =>
+            chain.category.includes(filter)
+          );
 
         // Add small boost to priority for playstyle match (for display purposes)
         if (playstyleMatch) {
@@ -815,12 +1464,19 @@ class AugmentOptimizer {
         let reason = `Standalone augment - ${augment.category}`;
 
         const playstyleMatch =
-          this.playstyleFilter &&
-          augment.category.includes(this.playstyleFilter);
+          this.playstyleFilter.length > 0 &&
+          this.playstyleFilter.some((filter) =>
+            augment.category.includes(filter)
+          );
 
         if (playstyleMatch) {
           priority = 3;
-          reason = `Matches your ${this.playstyleFilter} playstyle`;
+          const matchingFilters = this.playstyleFilter.filter((filter) =>
+            augment.category.includes(filter)
+          );
+          reason = `Matches your ${matchingFilters.join(", ")} playstyle${
+            matchingFilters.length > 1 ? "s" : ""
+          }`;
         }
 
         if (augment.addedIn === "August 2025") {

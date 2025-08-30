@@ -1251,3 +1251,47 @@ body {
     width: 95%;
   }
 }
+
+/* Playstyle Filter Checkboxes */
+.playstyle-filter-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+}
+
+.playstyle-option {
+  display: flex;
+  align-items: center;
+  padding: var(--space-8);
+  background: rgba(var(--wr-dark-surface), 0.3);
+  border: 1px solid var(--wr-dark-border);
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-standard);
+}
+
+.playstyle-option:hover {
+  background: rgba(var(--wr-dark-surface), 0.6);
+  border-color: var(--wr-accent);
+}
+
+.playstyle-option input[type="checkbox"] {
+  margin: 0;
+  margin-right: var(--space-8);
+  accent-color: var(--wr-accent);
+  cursor: pointer;
+}
+
+.playstyle-option label {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--wr-text-light);
+  cursor: pointer;
+  flex: 1;
+}
+
+.playstyle-option input[type="checkbox"]:checked + label {
+  color: var(--wr-accent);
+  font-weight: var(--font-weight-medium);
+}
