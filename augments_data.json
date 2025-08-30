@@ -114,17 +114,17 @@
       "roles": ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
       "types": ["Revival"]
     },
-    "Dual Wield": {
-      "description": "Reduces Attack Damage and Ability Power in exchange for a great Attack Speed boost.",
-      "rarity": "Gold",
-      "roles": ["Fighter", "Adc"],
-      "types": ["Solo Powerhouse"]
-    },
     "Dual Strike": {
       "description": "Hitting a target with an ability empowers your next attack, and hitting a target with an attack empowers your next ability. Both deal bonus true damage.",
       "rarity": "Silver",
       "roles": ["Fighter"],
       "types": ["Roaring Lion"]
+    },
+    "Dual Wield": {
+      "description": "Reduces Attack Damage and Ability Power in exchange for a great Attack Speed boost.",
+      "rarity": "Gold",
+      "roles": ["Fighter", "Adc"],
+      "types": ["Solo Powerhouse"]
     },
     "Escape Artist": {
       "description": "Taking damage reduces the cooldowns of your movement abilities.",
@@ -238,7 +238,7 @@
       "description": "The higher your Health, the larger your size and the more damage your attack deals.",
       "rarity": "Gold",
       "roles": ["Tank"],
-      "types": ["Siza"]
+      "types": ["Size"]
     },
     "Hi-Precision Sharpshooter": {
       "description": "Hitting an enemy with an ability at long range reduces the cooldowns of this ability and your ultimate ability.",
@@ -475,7 +475,7 @@
       "types": ["Shadow Wolf", "Spellblade"]
     },
     "Spiny Counter": {
-      "description": "When hit by an enemy champion's attack or when an enemy chanpion nearby casts an ability, deal magic damage to the attack or caster",
+      "description": "When hit by an enemy champion's attack or when an enemy champion nearby casts an ability, deal magic damage to the attack or caster",
       "rarity": "Silver",
       "roles": ["Tank"],
       "types": ["Solo Powerhouse"]
@@ -582,7 +582,7 @@
       "roles": ["Tank"],
       "types": ["Wild Bear", "Spellblade"]
     },
-    "Vengegul Counter": {
+    "Vengeful Counter": {
       "description": "After taking damage 4 times, attack the attacker.",
       "rarity": "Gold",
       "roles": ["Tank"],

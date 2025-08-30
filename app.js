@@ -54,7 +54,7 @@ class AugmentOptimizer {
       "Kitty Missile": {
         type: "projectile_series",
         required: 3,
-        category: "ADC",
+        category: "Adc",
         bonus:
           "Projectiles fly faster, deal increased damage, have shorter cooldowns, and ricochet to other targets on hit. Bounce your heart out!",
         augments: ["Speed up, Meow!", "Cool down, meow!", "Bounce, meow!"],
@@ -249,7 +249,7 @@ class AugmentOptimizer {
       "Shooter Expertise": {
         type: "adc_series",
         required: 4,
-        category: "ADC",
+        category: "Adc",
         bonus:
           "Unleash a dazzling barrage of attacks, clearing enemies with overwhelming force.",
         augments: [
@@ -294,7 +294,7 @@ class AugmentOptimizer {
         category: "Support",
         bonus:
           "A dual-loop strategy where crowd control and survivability fuel each other.",
-        augments: ["Supressive Vambrace", "Resolve", "Accelerated Control"],
+        augments: ["Suppressive Vambrace", "Resolve", "Accelerated Control"],
         color: "#9C27B0",
       },
     };
@@ -581,7 +581,7 @@ class AugmentOptimizer {
           "The higher your Health, the larger your size and the more damage your attack deals.",
         rarity: "Gold",
         roles: ["Tank"],
-        types: ["Siza"],
+        types: ["Size"],
       },
       "Hi-Precision Sharpshooter": {
         description:
@@ -847,7 +847,7 @@ class AugmentOptimizer {
       },
       "Spiny Counter": {
         description:
-          "When hit by an enemy champion's attack or when an enemy chanpion nearby casts an ability, deal magic damage to the attack or caster",
+          "When hit by an enemy champion's attack or when an enemy champion nearby casts an ability, deal magic damage to the attack or caster",
         rarity: "Silver",
         roles: ["Tank"],
         types: ["Solo Powerhouse"],
@@ -966,7 +966,7 @@ class AugmentOptimizer {
         roles: ["Tank"],
         types: ["Wild Bear", "Spellblade"],
       },
-      "Vengegul Counter": {
+      "Vengeful Counter": {
         description: "After taking damage 4 times, attack the attacker.",
         rarity: "Gold",
         roles: ["Tank"],
@@ -1071,34 +1071,64 @@ class AugmentOptimizer {
     });
   }
 
+  getCategoriesFromRoles(roles) {
+    // Map roles to categories for individual augments - return array of all applicable categories
+    const categories = [];
+    if (roles.includes("Tank")) categories.push("Tank");
+    if (roles.includes("Fighter")) categories.push("Fighter");
+    if (roles.includes("Assassin")) categories.push("Assassin");
+    if (roles.includes("Mage")) categories.push("Mage");
+    if (roles.includes("Adc")) categories.push("Adc");
+    if (roles.includes("Support")) categories.push("Support");
+    return categories.length > 0 ? categories : ["Other"];
+  }
+
   getAllAugments() {
     const chainAugments = {};
     Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
       chain.augments.forEach((augment) => {
         chainAugments[augment] = {
           chain: chainName,
-          category: chain.category,
+          categories: this.getCategoriesFromRoles(
+            this.individualAugments[augment]?.roles || []
+          ),
           effect: `Part of ${chainName} chain - ${chain.bonus}`,
           color: chain.color,
         };
       });
     });
 
-    return { ...chainAugments, ...this.individualAugments };
+    // Map individual augments to have consistent structure with effect property
+    const mappedIndividualAugments = {};
+    Object.entries(this.individualAugments).forEach(([name, augment]) => {
+      mappedIndividualAugments[name] = {
+        ...augment,
+        effect: augment.description,
+        categories: this.getCategoriesFromRoles(augment.roles), // Individual augments can have multiple categories
+      };
+    });
+
+    return { ...mappedIndividualAugments, ...chainAugments };
   }
 
   renderAugmentCategories() {
     const container = document.getElementById("augmentCategories");
     const allAugments = this.getAllAugments();
 
-    // Group augments by category
+    // Group augments by category - augments can appear in multiple categories
     const categories = {};
     Object.entries(allAugments).forEach(([name, augment]) => {
-      const category = augment.category || "Other";
-      if (!categories[category]) {
-        categories[category] = [];
-      }
-      categories[category].push({ name, ...augment });
+      const augmentCategories = augment.categories || [
+        augment.category || "Other",
+      ];
+
+      // Add this augment to each of its applicable categories
+      augmentCategories.forEach((category) => {
+        if (!categories[category]) {
+          categories[category] = [];
+        }
+        categories[category].push({ name, ...augment });
+      });
     });
 
     // Filter categories by playstyle
@@ -1253,6 +1283,24 @@ class AugmentOptimizer {
   updateRecommendations() {
     const container = document.getElementById("recommendations");
     let recommendations = this.generateRecommendations();
+
+    // Filter recommendations by playstyle if one is selected
+    if (this.playstyleFilter.length > 0) {
+      recommendations = recommendations.filter((rec) => {
+        const allAugments = this.getAllAugments();
+        const augment = allAugments[rec.augment];
+
+        if (!augment) return false;
+
+        // Check if augment's categories match any selected playstyle filter
+        const augmentCategories = augment.categories || [
+          augment.category || "Other",
+        ];
+        return this.playstyleFilter.some((filter) =>
+          augmentCategories.some((category) => category.includes(filter))
+        );
+      });
+    }
 
     // Filter recommendations by search query if one is active
     if (this.searchQuery) {
@@ -1432,15 +1480,17 @@ class AugmentOptimizer {
           reason += ` - Works with: ${applicableChains.join(", ")}`;
         }
 
-        // Check if augment matches playstyle filter
+        // Check if augment matches playstyle filter (for chain augments)
+        const augmentData = allAugments[augment];
+        const augmentCategories = augmentData?.categories || [chain.category];
         const playstyleMatch =
-          this.playstyleFilter.length > 0 &&
+          this.playstyleFilter.length === 0 ||
           this.playstyleFilter.some((filter) =>
-            chain.category.includes(filter)
+            augmentCategories.some((category) => category.includes(filter))
           );
 
         // Add small boost to priority for playstyle match (for display purposes)
-        if (playstyleMatch) {
+        if (playstyleMatch && this.playstyleFilter.length > 0) {
           priority += 1;
         }
 
@@ -1452,7 +1502,7 @@ class AugmentOptimizer {
           chain: chainName,
           chainCount: chainCount,
           efficiency: bestCompletionStatus.efficiency || 999, // Higher number = less efficient
-          playstyleMatch: playstyleMatch || false,
+          playstyleMatch: playstyleMatch && this.playstyleFilter.length > 0,
         });
       });
     });
@@ -1464,15 +1514,19 @@ class AugmentOptimizer {
         let reason = `Standalone augment - ${augment.category}`;
 
         const playstyleMatch =
-          this.playstyleFilter.length > 0 &&
+          this.playstyleFilter.length === 0 ||
           this.playstyleFilter.some((filter) =>
-            augment.category.includes(filter)
+            (augment.categories || [augment.category]).some((cat) =>
+              cat.includes(filter)
+            )
           );
 
-        if (playstyleMatch) {
+        if (playstyleMatch && this.playstyleFilter.length > 0) {
           priority = 3;
           const matchingFilters = this.playstyleFilter.filter((filter) =>
-            augment.category.includes(filter)
+            (augment.categories || [augment.category]).some((cat) =>
+              cat.includes(filter)
+            )
           );
           reason = `Matches your ${matchingFilters.join(", ")} playstyle${
             matchingFilters.length > 1 ? "s" : ""
@@ -1492,7 +1546,7 @@ class AugmentOptimizer {
           chain: null,
           chainCount: 0,
           efficiency: 999, // Standalone augments have lowest efficiency priority
-          playstyleMatch: playstyleMatch || false,
+          playstyleMatch: playstyleMatch && this.playstyleFilter.length > 0,
         });
       }
     });
@@ -1549,7 +1603,9 @@ class AugmentOptimizer {
 
     content.innerHTML = `
             <div class="form-group">
-                <strong>Category:</strong> ${augment.category}
+                <strong>Category:</strong> ${(
+                  augment.categories || [augment.category]
+                ).join(", ")}
             </div>
             <div class="form-group">
                 <strong>Effect:</strong> ${augment.effect}

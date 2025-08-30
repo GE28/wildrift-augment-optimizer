@@ -184,6 +184,6 @@
   {
     "name": "Control Expert",
     "description": "A dual-loop strategy where crowd control and survivability fuel each other.",
-    "augments": ["Supressive Vambrace", "Resolve", "Accelerated Control"]
+    "augments": ["Suppressive Vambrace", "Resolve", "Accelerated Control"]
   }
 ]
