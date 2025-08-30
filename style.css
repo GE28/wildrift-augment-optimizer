@@ -805,18 +805,22 @@ body {
   grid-template-columns: 1fr 1fr 1fr;
   gap: var(--space-24);
   margin-bottom: var(--space-32);
+  min-height: calc(100vh - 200px);
 }
 
 @media (max-width: 768px) {
   .layout {
     grid-template-columns: 1fr;
     gap: var(--space-16);
+    min-height: auto;
   }
 }
 
 /* Panels */
 .panel {
-  min-height: 600px;
+  min-height: 700px;
+  display: flex;
+  flex-direction: column;
 }
 
 .card {
@@ -845,7 +849,7 @@ body {
 .card__body {
   flex: 1;
   overflow-y: auto;
-  max-height: 500px;
+  max-height: calc(100vh - 300px);
 }
 
 /* Controls */
@@ -869,10 +873,14 @@ body {
 /* Augment Categories */
 .augment-categories {
   margin-top: var(--space-16);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .augment-category {
-  margin-bottom: var(--space-24);
+  margin-bottom: 0;
+  flex-shrink: 0;
 }
 
 .category-header {
@@ -950,6 +958,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
+  height: 100%;
 }
 
 .chain-item {
@@ -1022,7 +1031,7 @@ body {
 .recommendations {
   display: flex;
   flex-direction: column;
-  /* gap: var(--space-8); */
+  height: 100%;
 }
 
 .empty-state {
@@ -1038,6 +1047,7 @@ body {
   padding: var(--space-4);
   cursor: pointer;
   transition: all var(--duration-normal) var(--ease-standard);
+  flex-shrink: 0;
 }
 
 .recommendation-item:hover {
@@ -1103,27 +1113,6 @@ body {
   color: var(--wr-text-light);
   font-size: 11px;
   display: none;
-}
-
-/* Presets */
-.presets-section {
-  margin-top: var(--space-32);
-}
-
-.presets {
-  display: flex;
-  gap: var(--space-12);
-  flex-wrap: wrap;
-}
-
-.preset-btn {
-  border-color: var(--wr-accent);
-  color: var(--wr-accent);
-}
-
-.preset-btn:hover {
-  background: var(--wr-accent);
-  color: var(--wr-dark-bg);
 }
 
 /* Modal */
@@ -1249,10 +1238,6 @@ body {
 @media (max-width: 1024px) {
   .header__title {
     font-size: var(--font-size-3xl);
-  }
-
-  .presets {
-    justify-content: center;
   }
 }
 

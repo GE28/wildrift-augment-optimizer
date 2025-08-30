@@ -376,22 +376,6 @@ class AugmentOptimizer {
       },
     };
 
-    this.presets = {
-      tank: ["Heart of Steel", "Starfall Shield", "Spiny Counter"],
-      damage: ["Soulhunter's chain", "Lion's Spellblade", "Blade Array"],
-      support: [
-        "Heartsong Conversion",
-        "Healing Force",
-        "Transmissible Agents",
-      ],
-      assassin: ["Lupine Soul", "Shadow Strike", "Master of Mobility"],
-      marksman: [
-        "Hi-Precision Sharpshooter",
-        "Speed up, Meow!",
-        "Proximal Storm",
-      ],
-    };
-
     this.init();
   }
 
@@ -424,6 +408,7 @@ class AugmentOptimizer {
     document.getElementById("augmentSearch").addEventListener("input", (e) => {
       this.searchQuery = e.target.value.toLowerCase();
       this.renderAugmentCategories();
+      this.updateRecommendations();
     });
 
     document.getElementById("resetBtn").addEventListener("click", () => {
@@ -431,14 +416,6 @@ class AugmentOptimizer {
       this.renderAugmentCategories();
       this.updateChainProgress();
       this.updateRecommendations();
-    });
-
-    // Presets
-    document.querySelectorAll(".preset-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const preset = e.target.dataset.preset;
-        this.loadPreset(preset);
-      });
     });
 
     // Modal
@@ -629,11 +606,23 @@ class AugmentOptimizer {
 
   updateRecommendations() {
     const container = document.getElementById("recommendations");
-    const recommendations = this.generateRecommendations();
+    let recommendations = this.generateRecommendations();
+
+    // Filter recommendations by search query if one is active
+    if (this.searchQuery) {
+      recommendations = recommendations.filter(
+        (rec) =>
+          rec.augment.toLowerCase().includes(this.searchQuery) ||
+          rec.reason.toLowerCase().includes(this.searchQuery) ||
+          rec.effect.toLowerCase().includes(this.searchQuery)
+      );
+    }
 
     if (recommendations.length === 0) {
-      container.innerHTML =
-        '<div class="empty-state"><p>Select some augments to see recommendations!</p></div>';
+      const message = this.searchQuery
+        ? `<p>No recommendations found matching "${this.searchQuery}"</p>`
+        : `<p>Select some augments to see recommendations!</p>`;
+      container.innerHTML = `<div class="empty-state">${message}</div>`;
       return;
     }
 
@@ -870,19 +859,6 @@ class AugmentOptimizer {
       // Quaternary: chain count (more versatile is better)
       return (b.chainCount || 0) - (a.chainCount || 0);
     });
-  }
-
-  loadPreset(presetName) {
-    this.selectedAugments.clear();
-    if (this.presets[presetName]) {
-      this.presets[presetName].forEach((augment) => {
-        this.selectedAugments.add(augment);
-      });
-    }
-
-    this.renderAugmentCategories();
-    this.updateChainProgress();
-    this.updateRecommendations();
   }
 
   showAugmentDetails(augmentName) {
