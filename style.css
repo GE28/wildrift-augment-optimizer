@@ -1128,6 +1128,16 @@ body {
   font-weight: var(--font-weight-bold);
 }
 
+.selected-chain-badge {
+  background: linear-gradient(135deg, var(--wr-primary), var(--wr-accent));
+  color: var(--wr-light-text);
+  padding: var(--space-1) var(--space-6);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  cursor: help;
+}
+
 .efficiency-badge {
   background: var(--wr-warning);
   color: var(--wr-dark-bg);
@@ -1156,6 +1166,31 @@ body {
 .remaining-circle:hover {
   transform: scale(1.2);
   border-color: rgba(255, 255, 255, 0.5);
+}
+
+.toggleable-circle {
+  cursor: pointer !important;
+  position: relative;
+}
+
+.toggleable-circle:hover {
+  transform: scale(1.3);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.toggleable-circle::after {
+  content: "🔄";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 8px;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.toggleable-circle:hover::after {
+  opacity: 1;
 }
 
 .recommendation-reason {
@@ -1387,4 +1422,18 @@ body {
   100% {
     background-position: 0% 50%;
   }
+}
+
+.custom-tooltip {
+  position: fixed;
+  z-index: 9999;
+  background: #222;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  max-width: 240px;
+  white-space: pre-line;
 }

@@ -7,6 +7,7 @@ class AugmentOptimizer {
     this.suggestionCount = 12;
     this.playstyleFilter = [];
     this.searchQuery = "";
+    this.selectedChainPerAugment = {}; // Track which chain is selected for each augment
 
     // Augment data from the application data
     this.augmentChains = {
@@ -1059,6 +1060,7 @@ class AugmentOptimizer {
     document.getElementById("resetBtn").addEventListener("click", () => {
       this.selectedAugments.clear();
       this.playstyleFilter = [];
+      this.selectedChainPerAugment = {}; // Clear chain selections
 
       // Clear all playstyle checkboxes
       const checkboxes = document.querySelectorAll(
@@ -1091,6 +1093,50 @@ class AugmentOptimizer {
     if (roles.includes("Support")) categories.push("Support");
     if (roles.includes("Tank")) categories.push("Tank");
     return categories.length > 0 ? categories : ["Other"];
+  }
+
+  calculateChainCost(chainAugments, allAugments) {
+    const rarityCosts = { Silver: 1, Gold: 10, Prismatic: 100 };
+    return chainAugments.reduce((total, augmentName) => {
+      const augment = allAugments[augmentName];
+      const rarity = augment?.rarity || "Silver";
+      return total + (rarityCosts[rarity] || 1);
+    }, 0);
+  }
+
+  getCheapestChainForAugment(augment, allAugments) {
+    const chainsForAugment = Object.entries(this.augmentChains)
+      .filter(([_, chain]) => chain.augments.includes(augment))
+      .map(([chainName, chain]) => ({
+        name: chainName,
+        chain: chain,
+        cost: this.calculateChainCost(chain.augments, allAugments),
+      }))
+      .sort((a, b) => a.cost - b.cost);
+
+    return chainsForAugment.length > 0 ? chainsForAugment[0] : null;
+  }
+
+  toggleChainForAugment(augmentName) {
+    const allAugments = this.getAllAugments();
+    const availableChains = Object.entries(this.augmentChains)
+      .filter(([_, chain]) => chain.augments.includes(augmentName))
+      .map(([name, chain]) => ({
+        name,
+        cost: this.calculateChainCost(chain.augments, allAugments),
+      }))
+      .sort((a, b) => a.cost - b.cost);
+
+    if (availableChains.length <= 1) return; // No point in toggling if there's only one chain
+
+    const currentChain = this.selectedChainPerAugment[augmentName];
+    const currentIndex = availableChains.findIndex(
+      (chain) => chain.name === currentChain
+    );
+    const nextIndex = (currentIndex + 1) % availableChains.length;
+
+    this.selectedChainPerAugment[augmentName] = availableChains[nextIndex].name;
+    this.updateRecommendations();
   }
 
   getAllAugments() {
@@ -1355,23 +1401,74 @@ class AugmentOptimizer {
       }
     };
 
-    const generateRemainingCircles = (remainingAugments) => {
+    const generateRemainingCircles = (
+      remainingAugments,
+      augmentName,
+      selectedChain
+    ) => {
       if (!remainingAugments || remainingAugments.length === 0) return "";
 
       const circles = remainingAugments
-        .map((aug) => {
+        .map((aug, idx) => {
           const rarityColor = {
             Prismatic: "#e953b2",
             Gold: "#ffd700",
             Silver: "#c0c0c0",
           };
           const color = rarityColor[aug.rarity] || rarityColor["Silver"];
-          return `<span class="remaining-circle" style="background-color: ${color}; border: 1px solid var(--color-background);" title="${aug.name} (${aug.rarity})"></span>`;
+          // Add a data-tooltip attribute for custom tooltip and clickable chain toggle
+          return `<span class="remaining-circle toggleable-circle" style="background-color: ${color}; border: 1px solid var(--color-background);" data-tooltip="${aug.name} (${aug.rarity})" data-tooltip-id="rc-tooltip-${idx}" data-augment="${augmentName}" data-chain="${selectedChain}"></span>`;
         })
         .join("");
 
       return `<div class="remaining-circles">${circles}</div>`;
     };
+
+    if (!window.__remainingCircleTooltipInit) {
+      window.__remainingCircleTooltipInit = true;
+      document.addEventListener("mouseover", function (e) {
+        const target = e.target;
+        if (
+          target.classList.contains("remaining-circle") &&
+          target.dataset.tooltip
+        ) {
+          let tooltip = document.createElement("div");
+          tooltip.className = "custom-tooltip";
+          tooltip.textContent = target.dataset.tooltip;
+          tooltip.id = "custom-tooltip-active";
+          document.body.appendChild(tooltip);
+          function moveTooltip(ev) {
+            tooltip.style.left = ev.clientX + 12 + "px";
+            tooltip.style.top = ev.clientY + 12 + "px";
+          }
+          moveTooltip(e);
+          document.addEventListener("mousemove", moveTooltip);
+          target.__moveTooltip = moveTooltip;
+        }
+      });
+      document.addEventListener("mouseout", function (e) {
+        const target = e.target;
+        if (target.classList.contains("remaining-circle")) {
+          const tooltip = document.getElementById("custom-tooltip-active");
+          if (tooltip) tooltip.remove();
+          if (target.__moveTooltip) {
+            document.removeEventListener("mousemove", target.__moveTooltip);
+            target.__moveTooltip = null;
+          }
+        }
+      });
+      // Add click event listener for chain toggling
+      document.addEventListener("click", function (e) {
+        const target = e.target;
+        if (target.classList.contains("toggleable-circle")) {
+          e.stopPropagation();
+          const augmentName = target.dataset.augment;
+          if (augmentName) {
+            window.app.toggleChainForAugment(augmentName);
+          }
+        }
+      });
+    }
 
     const allAugments = this.getAllAugments();
 
@@ -1396,7 +1493,16 @@ class AugmentOptimizer {
                             ? `<span class="chain-count-badge">${rec.chainCount} chains</span>`
                             : ""
                         }
-                        ${generateRemainingCircles(rec.remainingAugments)}
+                        ${
+                          rec.selectedChain
+                            ? `<span class="selected-chain-badge" title="Current chain (click circles to toggle)">📋 ${rec.selectedChain}</span>`
+                            : ""
+                        }
+                        ${generateRemainingCircles(
+                          rec.remainingAugments,
+                          rec.augment,
+                          rec.selectedChain
+                        )}
                     </div>
                 </div>
                 <div class="recommendation-reason">${rec.reason}</div>
@@ -1474,36 +1580,25 @@ class AugmentOptimizer {
               let chainReason = reason;
               let efficiency = 0; // Lower is better - fewer augments needed
 
-              // Granular priority based on augments needed to complete
-              if (augmentsNeededToComplete === 1) {
-                // Immediate completion - highest priority
-                chainPriority = 10;
-                efficiency = 1; // Only 1 augment needed
-                chainReason = `Complete ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
-              } else if (augmentsNeededToComplete === 2) {
-                // Near completion - very high priority
+              if (augmentsNeededToComplete === 2) {
                 chainPriority = 8;
-                efficiency = 2; // 2 augments needed
+                efficiency = 2;
                 chainReason = `Near completion of ${otherChainName} (need ${augmentsNeededToComplete} more)`;
               } else if (augmentsNeededToComplete === 3) {
-                // Close to completion - high priority, with progress-based adjustment
-                chainPriority = 6 + completionProgress; // Add progress as decimal for tiebreaking
-                efficiency = 3; // 3 augments needed
+                chainPriority = 6 + completionProgress;
+                efficiency = 3;
                 chainReason = `Close to ${otherChainName} completion (need ${augmentsNeededToComplete} more)`;
               } else if (completionProgress >= 0.5) {
-                // More than halfway - medium priority
-                chainPriority = 4 + completionProgress; // Add progress for tiebreaking
+                chainPriority = 4 + completionProgress;
                 efficiency = augmentsNeededToComplete;
                 chainReason = `Continue ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
               } else {
-                // Early stage - low priority
-                chainPriority = 2 + completionProgress; // Add progress for tiebreaking
+                chainPriority = 2 + completionProgress;
                 efficiency = augmentsNeededToComplete;
                 chainReason = `Start ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
               }
 
               // Update if this chain offers better completion status
-              // Primary: higher priority, Secondary: lower efficiency (fewer augments needed)
               const isBetter =
                 chainPriority > bestCompletionStatus.priority ||
                 (chainPriority === bestCompletionStatus.priority &&
@@ -1532,54 +1627,49 @@ class AugmentOptimizer {
           reason += ` - Works with: ${applicableChains.join(", ")}`;
         }
 
-        // Check if augment matches playstyle filter (for chain augments)
-        const augmentData = allAugments[augment];
-        const augmentCategories = augmentData?.categories || [chain.category];
-        const playstyleMatch =
-          this.playstyleFilter.length === 0 ||
-          this.playstyleFilter.some((filter) =>
-            augmentCategories.some(
-              (category) => category === filter || category.includes(filter)
-            )
-          );
+        // Note: Playstyle matching is handled in updateRecommendations() as a filter
 
-        // Add small boost to priority for playstyle match (for display purposes)
-        if (playstyleMatch && this.playstyleFilter.length > 0) {
-          priority += 1;
+        // Get the selected chain for this augment, or default to cheapest chain
+        let selectedChainInfo = null;
+        if (this.selectedChainPerAugment[augment]) {
+          const selectedChainName = this.selectedChainPerAugment[augment];
+          selectedChainInfo = {
+            name: selectedChainName,
+            chain: this.augmentChains[selectedChainName],
+            cost: this.calculateChainCost(
+              this.augmentChains[selectedChainName].augments,
+              allAugments
+            ),
+          };
+        } else {
+          selectedChainInfo = this.getCheapestChainForAugment(
+            augment,
+            allAugments
+          );
+          if (selectedChainInfo) {
+            // Store the default cheapest chain selection
+            this.selectedChainPerAugment[augment] = selectedChainInfo.name;
+          }
         }
 
-        // Calculate remaining augments needed for completion after selecting this augment
-        const remainingAugmentsSet = new Set();
-        Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
-          if (chain.augments.includes(augment)) {
-            const selectedInChain = chain.augments.filter((a) =>
-              this.selectedAugments.has(a)
-            ).length;
-            const augmentsNeededAfterSelection =
-              chain.required - selectedInChain - 1; // -1 because we're adding this augment
+        let remainingAugments = [];
+        if (selectedChainInfo) {
+          const selectedInChain = selectedChainInfo.chain.augments.filter((a) =>
+            this.selectedAugments.has(a)
+          ).length;
+          const augmentsNeededAfterSelection =
+            selectedChainInfo.chain.required - selectedInChain - 1; // -1 because we're adding this augment
 
-            if (augmentsNeededAfterSelection > 0) {
-              const missingAugments = chain.augments.filter(
-                (a) => !this.selectedAugments.has(a) && a !== augment
-              );
-              missingAugments.forEach((augName) =>
-                remainingAugmentsSet.add(augName)
-              );
-            }
+          if (augmentsNeededAfterSelection > 0) {
+            const missingAugments = selectedChainInfo.chain.augments.filter(
+              (a) => !this.selectedAugments.has(a) && a !== augment
+            );
+            remainingAugments = missingAugments.map((augName) => ({
+              name: augName,
+              rarity: allAugments[augName]?.rarity || "Silver",
+            }));
           }
-        });
-
-        const remainingAugments = Array.from(remainingAugmentsSet).map(
-          (augName) => ({
-            name: augName,
-            rarity: allAugments[augName]?.rarity || "Silver",
-          })
-        );
-
-        const rarityOrder = { Prismatic: 0, Gold: 1, Silver: 2 };
-        remainingAugments.sort(
-          (a, b) => (rarityOrder[a.rarity] || 2) - (rarityOrder[b.rarity] || 2)
-        );
+        }
 
         recommendations.push({
           augment,
@@ -1589,8 +1679,14 @@ class AugmentOptimizer {
           chain: chainName,
           chainCount: chainCount,
           efficiency: bestCompletionStatus.efficiency || 999, // Higher number = less efficient
-          playstyleMatch: playstyleMatch && this.playstyleFilter.length > 0,
           remainingAugments: remainingAugments.slice(0, 5), // Limit to 5 to avoid clutter
+          selectedChain: selectedChainInfo?.name || null,
+          availableChains: Object.entries(this.augmentChains)
+            .filter(([_, chain]) => chain.augments.includes(augment))
+            .map(([name, chain]) => ({
+              name,
+              cost: this.calculateChainCost(chain.augments, allAugments),
+            })),
         });
       });
     });
@@ -1599,32 +1695,7 @@ class AugmentOptimizer {
     Object.entries(this.individualAugments).forEach(([name, augment]) => {
       if (!this.selectedAugments.has(name) && !processedAugments.has(name)) {
         let priority = 2;
-        let reason = `Standalone augment - ${augment.category}`;
-
-        const mappedAugment = allAugments[name];
-        const augmentCategories = mappedAugment?.categories || [
-          augment.category,
-        ];
-
-        const playstyleMatch =
-          this.playstyleFilter.length === 0 ||
-          this.playstyleFilter.some((filter) =>
-            augmentCategories.some(
-              (cat) => cat === filter || cat.includes(filter)
-            )
-          );
-
-        if (playstyleMatch && this.playstyleFilter.length > 0) {
-          priority = 3;
-          const matchingFilters = this.playstyleFilter.filter((filter) =>
-            augmentCategories.some(
-              (cat) => cat === filter || cat.includes(filter)
-            )
-          );
-          reason = `Matches your ${matchingFilters.join(", ")} playstyle${
-            matchingFilters.length > 1 ? "s" : ""
-          }`;
-        }
+        let reason = `Standalone augment`;
 
         if (augment.addedIn === "August 2025") {
           priority += 1;
@@ -1639,28 +1710,22 @@ class AugmentOptimizer {
           chain: null,
           chainCount: 0,
           efficiency: 999, // Standalone augments have lowest efficiency priority
-          playstyleMatch: playstyleMatch && this.playstyleFilter.length > 0,
           remainingAugments: [], // Individual augments have no remaining chain augments
         });
       }
     });
 
-    // Sort by playstyle match first (matching playstyle takes precedence),
-    // then by priority (highest first), then by efficiency (lowest number = fewer augments needed), then by chain count (most versatile)
+    // Sort by priority (highest first), then by efficiency (lowest number = fewer augments needed), then by chain count (most versatile)
     return recommendations.sort((a, b) => {
-      // Primary: playstyle match (true > false)
-      if (a.playstyleMatch !== b.playstyleMatch) {
-        return b.playstyleMatch - a.playstyleMatch;
-      }
-      // Secondary: priority (highest first)
+      // Primary: priority (highest first)
       if (b.priority !== a.priority) {
         return b.priority - a.priority;
       }
-      // Tertiary: efficiency (fewer augments needed is better)
+      // Secondary: efficiency (fewer augments needed is better)
       if (a.efficiency !== b.efficiency) {
         return a.efficiency - b.efficiency;
       }
-      // Quaternary: chain count (more versatile is better)
+      // Tertiary: chain count (more versatile is better)
       return (b.chainCount || 0) - (a.chainCount || 0);
     });
   }
