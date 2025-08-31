@@ -1355,6 +1355,24 @@ class AugmentOptimizer {
       }
     };
 
+    const generateRemainingCircles = (remainingAugments) => {
+      if (!remainingAugments || remainingAugments.length === 0) return "";
+
+      const circles = remainingAugments
+        .map((aug) => {
+          const rarityColor = {
+            Prismatic: "#e953b2",
+            Gold: "#ffd700",
+            Silver: "#c0c0c0",
+          };
+          const color = rarityColor[aug.rarity] || rarityColor["Silver"];
+          return `<span class="remaining-circle" style="background-color: ${color}; border: 1px solid var(--color-background);" title="${aug.name} (${aug.rarity})"></span>`;
+        })
+        .join("");
+
+      return `<div class="remaining-circles">${circles}</div>`;
+    };
+
     const allAugments = this.getAllAugments();
 
     container.innerHTML = recommendations
@@ -1378,11 +1396,7 @@ class AugmentOptimizer {
                             ? `<span class="chain-count-badge">${rec.chainCount} chains</span>`
                             : ""
                         }
-                        ${
-                          rec.efficiency && rec.efficiency < 999
-                            ? `<span class="efficiency-badge">${rec.efficiency} to</span>`
-                            : ""
-                        }
+                        ${generateRemainingCircles(rec.remainingAugments)}
                     </div>
                 </div>
                 <div class="recommendation-reason">${rec.reason}</div>
@@ -1538,6 +1552,39 @@ class AugmentOptimizer {
           priority += 1;
         }
 
+        // Calculate remaining augments needed for completion after selecting this augment
+        const remainingAugmentsSet = new Set();
+        Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
+          if (chain.augments.includes(augment)) {
+            const selectedInChain = chain.augments.filter((a) =>
+              this.selectedAugments.has(a)
+            ).length;
+            const augmentsNeededAfterSelection =
+              chain.required - selectedInChain - 1; // -1 because we're adding this augment
+
+            if (augmentsNeededAfterSelection > 0) {
+              const missingAugments = chain.augments.filter(
+                (a) => !this.selectedAugments.has(a) && a !== augment
+              );
+              missingAugments.forEach((augName) =>
+                remainingAugmentsSet.add(augName)
+              );
+            }
+          }
+        });
+
+        const remainingAugments = Array.from(remainingAugmentsSet).map(
+          (augName) => ({
+            name: augName,
+            rarity: allAugments[augName]?.rarity || "Silver",
+          })
+        );
+
+        const rarityOrder = { Prismatic: 0, Gold: 1, Silver: 2 };
+        remainingAugments.sort(
+          (a, b) => (rarityOrder[a.rarity] || 2) - (rarityOrder[b.rarity] || 2)
+        );
+
         recommendations.push({
           augment,
           priority,
@@ -1547,6 +1594,7 @@ class AugmentOptimizer {
           chainCount: chainCount,
           efficiency: bestCompletionStatus.efficiency || 999, // Higher number = less efficient
           playstyleMatch: playstyleMatch && this.playstyleFilter.length > 0,
+          remainingAugments: remainingAugments.slice(0, 5), // Limit to 5 to avoid clutter
         });
       });
     });
@@ -1596,6 +1644,7 @@ class AugmentOptimizer {
           chainCount: 0,
           efficiency: 999, // Standalone augments have lowest efficiency priority
           playstyleMatch: playstyleMatch && this.playstyleFilter.length > 0,
+          remainingAugments: [], // Individual augments have no remaining chain augments
         });
       }
     });
