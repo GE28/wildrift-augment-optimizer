@@ -57,7 +57,7 @@ class AugmentOptimizer {
         category: "Adc",
         bonus:
           "Projectiles fly faster, deal increased damage, have shorter cooldowns, and ricochet to other targets on hit. Bounce your heart out!",
-        augments: ["Speed up, Meow!", "Cool down, meow!", "Bounce, meow!"],
+        augments: ["Speed up, Meow!", "Cool down, meow!", "Bounce, Meow!"],
         color: "#F39C12",
       },
       "Power of Arrays": {
@@ -67,8 +67,8 @@ class AugmentOptimizer {
         bonus:
           "Arrays automatically track and burn enemies, and trigger a meteor shower with a large area of effect, creating a cycle of bombardment.",
         augments: [
-          "Nowhere to run, meow!",
-          "Burn, meow!",
+          "Nowhere to Run, Meow!",
+          "Burn, Meow!",
           "Kaboom, Meow!",
           "Blade Array",
           "Thief's Circle",
@@ -398,7 +398,7 @@ class AugmentOptimizer {
         roles: ["Assassin"],
         types: ["Shadow Wolf"],
       },
-      "Cool Down, Meow!": {
+      "Cool down, meow!": {
         description: "Reduces the cooldowns of all projectile abilities.",
         rarity: "Silver",
         roles: ["Mage"],
@@ -832,7 +832,7 @@ class AugmentOptimizer {
         roles: ["Tank", "Fighter", "Assassin", "Mage", "Adc", "Support"],
         types: ["Movement", "Speed"],
       },
-      "Speed Up, Meow!": {
+      "Speed up, Meow!": {
         description: "Greatly increases the speed and damage of projectiles.",
         rarity: "Prismatic",
         roles: ["Mage"],
@@ -1406,7 +1406,6 @@ class AugmentOptimizer {
       })
       .join("");
 
-    // Bind recommendation click events
     container.querySelectorAll(".recommendation-item").forEach((item) => {
       item.addEventListener("click", (e) => {
         const augmentName = item.dataset.augment;
@@ -1419,7 +1418,6 @@ class AugmentOptimizer {
     const recommendations = [];
     const allAugments = this.getAllAugments();
 
-    // Calculate how many chains each augment appears in
     const augmentChainCount = {};
     Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
       chain.augments.forEach((augment) => {
@@ -1427,10 +1425,8 @@ class AugmentOptimizer {
       });
     });
 
-    // Track processed augments to avoid duplicates
     const processedAugments = new Set();
 
-    // Find chains that are close to completion
     Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
       const selectedInChain = chain.augments.filter((augment) =>
         this.selectedAugments.has(augment)
