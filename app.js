@@ -16,7 +16,7 @@ class AugmentOptimizer {
         category: "Damage",
         bonus:
           "Mark enemies with abilities, deal more damage with attacks, then trigger the magic array to set off an explosive chain!",
-        augments: ["Soulhunter's chain", "Blade Array", "Mystic Punch"],
+        augments: ["Soulhunter's Chain", "Blade Array", "Mystic Punch"],
         color: "#E74C3C",
       },
       "Berserker's Domain": {
@@ -27,7 +27,7 @@ class AugmentOptimizer {
           "With the lion's soul by your side, grow stronger the longer you fight. Weave attacks into your abilities to become an all-round berserker!",
         augments: [
           "Health Marker",
-          "Soulhunter's chain",
+          "Soulhunter's Chain",
           "Dual Strike",
           "Lion's Spellblade",
         ],
@@ -300,7 +300,7 @@ class AugmentOptimizer {
     };
 
     // this.individualAugments = {
-    //   "Soulhunter's chain": {
+    //   "Soulhunter's Chain": {
     //     series: "damage",
     //     effect: "Marks enemies for enhanced damage tracking and chain combos",
     //     category: "Damage",
@@ -1099,7 +1099,7 @@ class AugmentOptimizer {
       mappedIndividualAugments[name] = {
         ...augment,
         effect: augment.description,
-        categories: this.getCategoriesFromRoles(augment.roles || []), // Individual augments can have multiple categories
+        categories: this.getCategoriesFromRoles(augment.roles || []),
       };
     });
 
@@ -1342,13 +1342,33 @@ class AugmentOptimizer {
       return;
     }
 
+    const getGradientClass = (rarity) => {
+      switch ((rarity || "").toLowerCase()) {
+        case "silver":
+          return "gradient-silver";
+        case "gold":
+          return "gradient-gold";
+        case "prismatic":
+          return "gradient-prismatic";
+        default:
+          return "";
+      }
+    };
+
+    const allAugments = this.getAllAugments();
+
     container.innerHTML = recommendations
       .slice(0, this.suggestionCount)
-      .map(
-        (rec) => `
+      .map((rec) => {
+        const augmentData = allAugments[rec.augment] || {};
+        const rarity = augmentData.rarity || "";
+        const gradientClass = getGradientClass(rarity);
+        return `
             <div class="recommendation-item" data-augment="${rec.augment}">
                 <div class="recommendation-header">
-                    <h4 class="recommendation-name">${rec.augment}</h4>
+                    <h4 class="recommendation-name ${gradientClass}">${
+          rec.augment
+        }</h4>
                     <div class="recommendation-badges">
                         <span class="recommendation-priority">Priority ${
                           rec.priority
@@ -1368,8 +1388,8 @@ class AugmentOptimizer {
                 <div class="recommendation-reason">${rec.reason}</div>
                 <div class="recommendation-effect">${rec.effect}</div>
             </div>
-        `
-      )
+        `;
+      })
       .join("");
 
     // Bind recommendation click events
