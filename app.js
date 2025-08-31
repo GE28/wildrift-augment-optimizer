@@ -4,7 +4,7 @@
 class AugmentOptimizer {
   constructor() {
     this.selectedAugments = new Set();
-    this.suggestionCount = 3;
+    this.suggestionCount = 12;
     this.playstyleFilter = [];
     this.searchQuery = "";
 
@@ -1008,6 +1008,16 @@ class AugmentOptimizer {
     this.renderAugmentCategories();
     this.updateChainProgress();
     this.updateRecommendations();
+    this.updateAugmentCount(); // <-- Add this line to update augment count on load
+  }
+
+  updateAugmentCount() {
+    const allAugments = this.getAllAugments();
+    const count = Object.keys(allAugments).length;
+    const countEls = document.querySelectorAll(".augment-count");
+    countEls.forEach((el) => {
+      el.textContent = count;
+    });
   }
 
   bindEvents() {
@@ -1074,48 +1084,49 @@ class AugmentOptimizer {
   getCategoriesFromRoles(roles) {
     // Map roles to categories for individual augments - return array of all applicable categories
     const categories = [];
-    if (roles.includes("Tank")) categories.push("Tank");
-    if (roles.includes("Fighter")) categories.push("Fighter");
-    if (roles.includes("Assassin")) categories.push("Assassin");
-    if (roles.includes("Mage")) categories.push("Mage");
     if (roles.includes("Adc")) categories.push("Adc");
+    if (roles.includes("Assassin")) categories.push("Assassin");
+    if (roles.includes("Fighter")) categories.push("Fighter");
+    if (roles.includes("Mage")) categories.push("Mage");
     if (roles.includes("Support")) categories.push("Support");
+    if (roles.includes("Tank")) categories.push("Tank");
     return categories.length > 0 ? categories : ["Other"];
   }
 
   getAllAugments() {
-    const chainAugments = {};
-    Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
-      chain.augments.forEach((augment) => {
-        chainAugments[augment] = {
-          chain: chainName,
-          categories: this.getCategoriesFromRoles(
-            this.individualAugments[augment]?.roles || []
-          ),
-          effect: `Part of ${chainName} chain - ${chain.bonus}`,
-          color: chain.color,
-        };
-      });
-    });
-
-    // Map individual augments to have consistent structure with effect property
     const mappedIndividualAugments = {};
     Object.entries(this.individualAugments).forEach(([name, augment]) => {
       mappedIndividualAugments[name] = {
         ...augment,
         effect: augment.description,
-        categories: this.getCategoriesFromRoles(augment.roles), // Individual augments can have multiple categories
+        categories: this.getCategoriesFromRoles(augment.roles || []), // Individual augments can have multiple categories
       };
     });
 
-    return { ...mappedIndividualAugments, ...chainAugments };
+    Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
+      chain.augments.forEach((augment) => {
+        if (mappedIndividualAugments[augment]) {
+          mappedIndividualAugments[augment] = {
+            ...mappedIndividualAugments[augment],
+            chain: chainName,
+            chainBonus: chain.bonus,
+            color: chain.color,
+          };
+        } else {
+          console.warn(
+            `Chain augment "${augment}" not found in individual augments`
+          );
+        }
+      });
+    });
+
+    return mappedIndividualAugments;
   }
 
   renderAugmentCategories() {
     const container = document.getElementById("augmentCategories");
     const allAugments = this.getAllAugments();
 
-    // Group augments by category - augments can appear in multiple categories
     const categories = {};
     Object.entries(allAugments).forEach(([name, augment]) => {
       const augmentCategories = augment.categories || [
@@ -1180,10 +1191,18 @@ class AugmentOptimizer {
                                        : ""
                                    }>
                             <div>
-                                <div class="augment-name">${augment.name}</div>
-                                <div class="augment-effect">${
-                                  augment.effect
-                                }</div>
+                                <div class="augment-name">${augment.name}${
+                          augment.chain
+                            ? ` <span style="color: ${
+                                augment.color || "#888"
+                              }; font-size: 0.8em;">[${augment.chain}]</span>`
+                            : ""
+                        }</div>
+                                <div class="augment-effect">${augment.effect}${
+                          augment.chainBonus
+                            ? ` <br><small style="color: #666;">Chain: ${augment.chainBonus}</small>`
+                            : ""
+                        }</div>
                             </div>
                         </div>
                     `
@@ -1296,8 +1315,11 @@ class AugmentOptimizer {
         const augmentCategories = augment.categories || [
           augment.category || "Other",
         ];
+
         return this.playstyleFilter.some((filter) =>
-          augmentCategories.some((category) => category.includes(filter))
+          augmentCategories.some(
+            (category) => category === filter || category.includes(filter)
+          )
         );
       });
     }
@@ -1486,7 +1508,9 @@ class AugmentOptimizer {
         const playstyleMatch =
           this.playstyleFilter.length === 0 ||
           this.playstyleFilter.some((filter) =>
-            augmentCategories.some((category) => category.includes(filter))
+            augmentCategories.some(
+              (category) => category === filter || category.includes(filter)
+            )
           );
 
         // Add small boost to priority for playstyle match (for display purposes)
@@ -1513,19 +1537,24 @@ class AugmentOptimizer {
         let priority = 2;
         let reason = `Standalone augment - ${augment.category}`;
 
+        const mappedAugment = allAugments[name];
+        const augmentCategories = mappedAugment?.categories || [
+          augment.category,
+        ];
+
         const playstyleMatch =
           this.playstyleFilter.length === 0 ||
           this.playstyleFilter.some((filter) =>
-            (augment.categories || [augment.category]).some((cat) =>
-              cat.includes(filter)
+            augmentCategories.some(
+              (cat) => cat === filter || cat.includes(filter)
             )
           );
 
         if (playstyleMatch && this.playstyleFilter.length > 0) {
           priority = 3;
           const matchingFilters = this.playstyleFilter.filter((filter) =>
-            (augment.categories || [augment.category]).some((cat) =>
-              cat.includes(filter)
+            augmentCategories.some(
+              (cat) => cat === filter || cat.includes(filter)
             )
           );
           reason = `Matches your ${matchingFilters.join(", ")} playstyle${
