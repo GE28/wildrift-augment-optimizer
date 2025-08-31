@@ -300,14 +300,6 @@ class AugmentOptimizer {
       },
     };
 
-    // this.individualAugments = {
-    //   "Soulhunter's Chain": {
-    //     series: "damage",
-    //     effect: "Marks enemies for enhanced damage tracking and chain combos",
-    //     category: "Damage",
-    //     addedIn: "August 2025",
-    // },
-
     // Individual augment effects
     this.individualAugments = {
       "Accelerated Control": {
@@ -1416,8 +1408,8 @@ class AugmentOptimizer {
             Silver: "#c0c0c0",
           };
           const color = rarityColor[aug.rarity] || rarityColor["Silver"];
-          // Add a data-tooltip attribute for custom tooltip and clickable chain toggle
-          return `<span class="remaining-circle toggleable-circle" style="background-color: ${color}; border: 1px solid var(--color-background);" data-tooltip="${aug.name} (${aug.rarity})" data-tooltip-id="rc-tooltip-${idx}" data-augment="${augmentName}" data-chain="${selectedChain}"></span>`;
+          // Remove toggleable-circle class - circles are now display-only
+          return `<span class="remaining-circle" style="background-color: ${color}; border: 1px solid var(--color-background);" data-tooltip="${aug.name} (${aug.rarity})" data-tooltip-id="rc-tooltip-${idx}"></span>`;
         })
         .join("");
 
@@ -1426,17 +1418,38 @@ class AugmentOptimizer {
 
     if (!window.__remainingCircleTooltipInit) {
       window.__remainingCircleTooltipInit = true;
+
+      // Tooltip cleanup helper
+      function cleanupTooltips() {
+        const allTooltips = document.querySelectorAll(".custom-tooltip");
+        allTooltips.forEach((tooltip) => tooltip.remove());
+      }
+
+      // Debounced cleanup to prevent flicker
+      let cleanupTimeout = null;
+
       document.addEventListener("mouseover", function (e) {
         const target = e.target;
+
+        // Clear any pending cleanup
+        if (cleanupTimeout) {
+          clearTimeout(cleanupTimeout);
+          cleanupTimeout = null;
+        }
+
         if (
           target.classList.contains("remaining-circle") &&
           target.dataset.tooltip
         ) {
+          // Clean up existing tooltips first
+          cleanupTooltips();
+
           let tooltip = document.createElement("div");
           tooltip.className = "custom-tooltip";
           tooltip.textContent = target.dataset.tooltip;
           tooltip.id = "custom-tooltip-active";
           document.body.appendChild(tooltip);
+
           function moveTooltip(ev) {
             tooltip.style.left = ev.clientX + 12 + "px";
             tooltip.style.top = ev.clientY + 12 + "px";
@@ -1449,18 +1462,20 @@ class AugmentOptimizer {
       document.addEventListener("mouseout", function (e) {
         const target = e.target;
         if (target.classList.contains("remaining-circle")) {
-          const tooltip = document.getElementById("custom-tooltip-active");
-          if (tooltip) tooltip.remove();
-          if (target.__moveTooltip) {
-            document.removeEventListener("mousemove", target.__moveTooltip);
-            target.__moveTooltip = null;
-          }
+          cleanupTimeout = setTimeout(() => {
+            const tooltip = document.getElementById("custom-tooltip-active");
+            if (tooltip) tooltip.remove();
+            if (target.__moveTooltip) {
+              document.removeEventListener("mousemove", target.__moveTooltip);
+              target.__moveTooltip = null;
+            }
+          }, 50);
         }
       });
-      // Add click event listener for chain toggling
+
       document.addEventListener("click", function (e) {
         const target = e.target;
-        if (target.classList.contains("toggleable-circle")) {
+        if (target.classList.contains("toggleable-chain-counter")) {
           e.stopPropagation();
           const augmentName = target.dataset.augment;
           if (augmentName) {
@@ -1468,6 +1483,78 @@ class AugmentOptimizer {
           }
         }
       });
+
+      // Add hover tooltip for badges
+      document.addEventListener("mouseover", function (e) {
+        const target = e.target;
+
+        // Clear any pending cleanup
+        if (cleanupTimeout) {
+          clearTimeout(cleanupTimeout);
+          cleanupTimeout = null;
+        }
+
+        if (
+          target.classList.contains("chain-count-badge") &&
+          target.dataset.tooltip
+        ) {
+          // Clean up existing tooltips first
+          cleanupTooltips();
+
+          let tooltip = document.createElement("div");
+          tooltip.className = "custom-tooltip";
+          tooltip.textContent = target.dataset.tooltip;
+          tooltip.id = "custom-tooltip-badge-active";
+          document.body.appendChild(tooltip);
+
+          function moveTooltip(ev) {
+            tooltip.style.left = ev.clientX + 12 + "px";
+            tooltip.style.top = ev.clientY + 12 + "px";
+          }
+          moveTooltip(e);
+          document.addEventListener("mousemove", moveTooltip);
+          target.__moveTooltip = moveTooltip;
+        }
+      });
+
+      // Consolidated mouseout handler for all tooltips
+      document.addEventListener("mouseout", function (e) {
+        const target = e.target;
+
+        // Handle badge tooltips with debounced cleanup
+        if (target.classList.contains("chain-count-badge")) {
+          cleanupTimeout = setTimeout(() => {
+            const tooltip = document.getElementById(
+              "custom-tooltip-badge-active"
+            );
+            if (tooltip) tooltip.remove();
+            if (target.__moveTooltip) {
+              document.removeEventListener("mousemove", target.__moveTooltip);
+              target.__moveTooltip = null;
+            }
+          }, 50);
+        }
+
+        // Also remove any stray tooltips when mouse leaves any interactive element
+        if (
+          target.classList.contains("remaining-circle") ||
+          target.classList.contains("chain-count-badge")
+        ) {
+          // Debounced safety cleanup
+          cleanupTimeout = setTimeout(cleanupTooltips, 100);
+        }
+      });
+
+      // Global cleanup when mouse leaves the recommendations container
+      document.addEventListener(
+        "mouseleave",
+        function (e) {
+          if (e.target.id === "recommendations") {
+            cleanupTimeout = setTimeout(cleanupTooltips, 100);
+          }
+        },
+        true
+      );
     }
 
     const allAugments = this.getAllAugments();
@@ -1490,12 +1577,19 @@ class AugmentOptimizer {
                         }</span>
                         ${
                           rec.chainCount > 1
-                            ? `<span class="chain-count-badge">${rec.chainCount} chains</span>`
-                            : ""
-                        }
-                        ${
-                          rec.selectedChain
-                            ? `<span class="selected-chain-badge" title="Current chain (click circles to toggle)">📋 ${rec.selectedChain}</span>`
+                            ? `<span class="chain-count-badge toggleable-chain-counter" data-augment="${
+                                rec.augment
+                              }" data-tooltip="${
+                                rec.selectedChain
+                                  ? rec.selectedChain + "\n"
+                                  : ""
+                              }Click to change chain (${
+                                rec.chainCount
+                              } available)" title="Click to cycle through ${
+                                rec.chainCount
+                              } available chains">${
+                                rec.chainCount
+                              } chains</span>`
                             : ""
                         }
                         ${generateRemainingCircles(
@@ -1514,6 +1608,14 @@ class AugmentOptimizer {
 
     container.querySelectorAll(".recommendation-item").forEach((item) => {
       item.addEventListener("click", (e) => {
+        // Don't trigger modal if clicking on interactive elements
+        if (
+          e.target.classList.contains("toggleable-chain-counter") ||
+          e.target.classList.contains("chain-count-badge")
+        ) {
+          return;
+        }
+
         const augmentName = item.dataset.augment;
         this.showAugmentDetails(augmentName);
       });
