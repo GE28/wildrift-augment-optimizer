@@ -1282,11 +1282,17 @@ class AugmentOptimizer {
     const container = document.getElementById("chainProgress");
     container.innerHTML = "";
 
-    Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
-      const selectedInChain = chain.augments.filter((augment) =>
-        this.selectedAugments.has(augment)
-      ).length;
+    // Sort chains by number of granted augments in each chain, descending
+    const sortedChains = Object.entries(this.augmentChains)
+      .map(([chainName, chain]) => {
+        const selectedInChain = chain.augments.filter((augment) =>
+          this.selectedAugments.has(augment)
+        ).length;
+        return { chainName, chain, selectedInChain };
+      })
+      .sort((a, b) => b.selectedInChain - a.selectedInChain);
 
+    sortedChains.forEach(({ chainName, chain, selectedInChain }) => {
       const progress = (selectedInChain / chain.required) * 100;
       const isComplete = selectedInChain >= chain.required;
       const isNearComplete = selectedInChain === chain.required - 1;
