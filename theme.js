@@ -4,7 +4,13 @@ const darkModeIcon = document.getElementById("darkModeIcon");
 function setColorScheme(scheme) {
   document.documentElement.setAttribute("data-color-scheme", scheme);
   localStorage.setItem("colorScheme", scheme);
-  darkModeIcon.textContent = scheme === "dark" ? "light_mode" : "dark_mode";
+  if (darkModeIcon) {
+    darkModeIcon.textContent = scheme === "dark" ? "light_mode" : "dark_mode";
+  }
+
+  if (typeof setupTour === "function") {
+    window.currentTour = setupTour();
+  }
 }
 
 function toggleColorScheme() {

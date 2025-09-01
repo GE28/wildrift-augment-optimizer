@@ -325,6 +325,33 @@
   --color-error-rgb: var(--color-red-500-rgb);
   --color-warning-rgb: var(--color-orange-500-rgb);
   --color-info-rgb: var(--color-slate-500-rgb);
+
+  --gradient-prismatic: linear-gradient(
+    270deg,
+    hsl(193, 100%, 64%),
+    hsl(249, 100%, 79%),
+    hsl(322, 100%, 67%),
+    hsl(29, 100%, 69%),
+    hsl(193, 100%, 64%)
+  );
+
+  --grad-prism-simple: linear-gradient(
+    270deg,
+    hsl(322, 100%, 67%),
+    hsl(249, 100%, 69%)
+  );
+
+  --gradient-gold: linear-gradient(
+    270deg,
+    hsl(40, 47%, 47%),
+    hsl(42, 59%, 64%)
+  );
+
+  --gradient-silver: linear-gradient(
+    270deg,
+    hsl(214, 15%, 47%),
+    hsl(215, 22%, 65%)
+  );
 }
 
 /* Base styles */
@@ -979,6 +1006,7 @@ body {
 .category-header {
   display: flex;
   align-items: center;
+  margin-top: var(--space-16);
   margin-bottom: var(--space-12);
   padding: var(--space-8);
   background: var(--color-secondary);
@@ -1099,7 +1127,7 @@ body {
   height: 100%;
   border-radius: var(--radius-full);
   transition: width var(--duration-normal) var(--ease-standard);
-  background: linear-gradient(90deg, var(--wr-accent), var(--wr-secondary));
+  background: linear-gradient(90deg, var(--wr-warning), var(--wr-secondary));
 }
 
 .chain-status {
@@ -1186,7 +1214,7 @@ body {
 }
 
 .chain-count-badge {
-  background: var(--wr-secondary);
+  background: var(--wr-warning);
   color: var(--color-surface);
   padding: var(--space-1) var(--space-6);
   border-radius: var(--radius-full);

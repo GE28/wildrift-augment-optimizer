@@ -11,12 +11,26 @@
  *
  */
 
+function getCurrentTheme() {
+  const currentScheme =
+    document.documentElement.getAttribute("data-color-scheme") ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
+  return currentScheme;
+}
+
 function setupTour() {
+  // Get current theme and set appropriate Shepherd theme
+  const currentTheme = getCurrentTheme();
+  const shepherdTheme =
+    currentTheme === "dark" ? "shepherd-theme-dark" : "shepherd-theme-arrows";
+
   // Initialize a new Shepherd tour
   const tour = new Shepherd.Tour({
     useModalOverlay: true, // This darkens the background
     defaultStepOptions: {
-      classes: "shepherd-theme-dark", // Or any other theme you prefer
+      classes: shepherdTheme,
       scrollTo: true,
       cancelIcon: {
         enabled: true,
@@ -138,11 +152,65 @@ function setupTour() {
 
 // Initialize and bind the tour to the button
 window.addEventListener("DOMContentLoaded", function () {
-  const tour = setupTour();
+  // Create initial tour and store it globally
+  window.currentTour = setupTour();
+
   const btn = document.getElementById("start-tour-button");
   if (btn) {
     btn.addEventListener("click", function () {
-      tour.start();
+      window.currentTour.start();
+    });
+  }
+});
+
+// Tutorial modal logic
+window.addEventListener("DOMContentLoaded", function () {
+  // Use the global tour instance
+  const repeatBtn = document.getElementById("repeat-tour-button");
+  const modal = document.getElementById("tutorialWelcomeModal");
+  const modalStart = document.getElementById("tutorialModalStart");
+  const modalLater = document.getElementById("tutorialModalLater");
+  const modalDismiss = document.getElementById("tutorialModalDismiss");
+  const modalClose = document.getElementById("tutorialModalClose");
+
+  // Show modal only if not dismissed forever
+  const tutorialStatus = localStorage.getItem("tutorialModalStatus");
+  if (modal && tutorialStatus !== "dismissed") {
+    if (tutorialStatus !== "later") {
+      modal.classList.remove("hidden");
+    }
+  }
+
+  // Start tour from modal
+  if (modalStart) {
+    modalStart.addEventListener("click", function () {
+      modal.classList.add("hidden");
+      localStorage.setItem("tutorialModalStatus", "later");
+      window.currentTour.start();
+    });
+  }
+  // See later
+  if (modalLater) {
+    modalLater.addEventListener("click", function () {
+      modal.classList.add("hidden");
+      localStorage.setItem("tutorialModalStatus", "later");
+    });
+  }
+  // Dismiss forever
+  if (modalDismiss || modalClose) {
+    [modalDismiss, modalClose].forEach(function (el) {
+      if (el) {
+        el.addEventListener("click", function () {
+          modal.classList.add("hidden");
+          localStorage.setItem("tutorialModalStatus", "dismissed");
+        });
+      }
+    });
+  }
+  // Repeat tour button always available
+  if (repeatBtn) {
+    repeatBtn.addEventListener("click", function () {
+      window.currentTour.start();
     });
   }
 });
