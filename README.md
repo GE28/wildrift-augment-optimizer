@@ -73,7 +73,7 @@ The app tracks 25+ augment chains including:
 
 ```
 wildrift-augment-optimizer/
-├── index.html                    # Main application interface
+├── index.html                   # Main application interface
 ├── app.js                       # Core application logic (~1900 lines)
 ├── style.css                    # Styling and responsive design  
 ├── tutorial.js                  # Code of the interactive guided tour 
@@ -84,8 +84,6 @@ wildrift-augment-optimizer/
 ├── assets/                      # GitHub icons and images
 ├── LICENSE                      # GNU GPL v3 license
 └── GNU_v3_LICENSE               # Full license text
-
-
 ```
 
 Caution: `augment_data.json` may be outdated compared to the hardcoded augment data in `app.js`. The app currently relies on `app.js` for accurate augment information.
