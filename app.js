@@ -1419,6 +1419,16 @@ class AugmentOptimizer {
       }
     };
 
+    const rarityOrder = ["Prismatic", "Gold", "Silver"];
+
+    const sortAugmentsByRarityDesc = (augments) => {
+      return augments.slice().sort((a, b) => {
+        const aRarity = a.rarity || "Silver";
+        const bRarity = b.rarity || "Silver";
+        return rarityOrder.indexOf(aRarity) - rarityOrder.indexOf(bRarity);
+      });
+    };
+
     const generateRemainingCircles = (
       remainingAugments,
       augmentName,
@@ -1426,7 +1436,10 @@ class AugmentOptimizer {
     ) => {
       if (!remainingAugments || remainingAugments.length === 0) return "";
 
-      const circles = remainingAugments
+      // rarity descending
+      const sortedAugments = sortAugmentsByRarityDesc(remainingAugments);
+
+      const circles = sortedAugments
         .map((aug, idx) => {
           const rarityColor = {
             Prismatic: "#e953b2",
@@ -1434,7 +1447,6 @@ class AugmentOptimizer {
             Silver: "#c0c0c0",
           };
           const color = rarityColor[aug.rarity] || rarityColor["Silver"];
-          // Remove toggleable-circle class - circles are now display-only
           return `<span class="remaining-circle" style="background-color: ${color}; border: 1px solid var(--color-background);" data-tooltip="${aug.name} (${aug.rarity})" data-tooltip-id="rc-tooltip-${idx}"></span>`;
         })
         .join("");
