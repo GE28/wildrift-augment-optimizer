@@ -1768,48 +1768,61 @@ class AugmentOptimizer {
         const chainsForAugment = Object.entries(this.augmentChains).filter(
           ([_, c]) => c.augments.includes(augment)
         );
-        // Find the feasible chain (can be completed with remaining slots)
-        let feasibleChainInfo = null;
-        let minRequired = Infinity;
-        let minCost = Infinity;
-        chainsForAugment.forEach(([cName, c]) => {
+
+        // Build detailed list for selection and sorting
+        const chainDetails = chainsForAugment.map(([cName, c]) => {
           const selectedInC = c.augments.filter((a) =>
             this.selectedAugments.has(a)
           ).length;
-
           const requiredToComplete = c.required - selectedInC;
-
-          // Only count cost of missing augments except the recommended one
           const missingOthers = c.augments.filter(
             (a) => !this.selectedAugments.has(a) && a !== augment
           );
-
           const cost = this.calculateChainCost(missingOthers, allAugments);
-
-          if (
-            requiredToComplete <= remainingSlots &&
-            requiredToComplete < minRequired
-          ) {
-            minRequired = requiredToComplete;
-            minCost = cost;
-            feasibleChainInfo = {
-              name: cName,
-              chain: c,
-              requiredToComplete,
-              cost,
-              selectedInC,
-            };
-          } else if (requiredToComplete === minRequired && cost < minCost) {
-            minCost = cost;
-            feasibleChainInfo = {
-              name: cName,
-              chain: c,
-              requiredToComplete,
-              cost,
-              selectedInC,
-            };
-          }
+          return {
+            name: cName,
+            chain: c,
+            requiredToComplete,
+            selectedInC,
+            cost,
+          };
         });
+
+        // Prefer user-selected chain if available
+        const userSelectedChainName = this.selectedChainPerAugment[augment];
+        let feasibleChainInfo = null;
+        if (userSelectedChainName) {
+          const sel = chainDetails.find(
+            (d) => d.name === userSelectedChainName
+          );
+          if (sel) {
+            feasibleChainInfo = sel; // prefer even if not strictly feasible
+          }
+        }
+
+        // If no user selection, or selection missing, fall back to best feasible
+        if (!feasibleChainInfo) {
+          let minRequired = Infinity;
+          let minCost = Infinity;
+          chainDetails.forEach((d) => {
+            const { requiredToComplete, cost } = d;
+            if (
+              requiredToComplete <= remainingSlots &&
+              requiredToComplete < minRequired
+            ) {
+              minRequired = requiredToComplete;
+              minCost = cost;
+              feasibleChainInfo = d;
+            } else if (
+              requiredToComplete <= remainingSlots &&
+              requiredToComplete === minRequired &&
+              cost < minCost
+            ) {
+              minCost = cost;
+              feasibleChainInfo = d;
+            }
+          });
+        }
 
         // If no feasible chain, penalize priority
         let priority = 0;
@@ -1836,6 +1849,9 @@ class AugmentOptimizer {
 
           // Use the original reason logic
           let baseReason = `Part of ${feasibleChainInfo.name} chain`;
+          if (this.selectedChainPerAugment[augment]) {
+            baseReason = `Selected: ${this.selectedChainPerAugment[augment]} (click badge to cycle)`;
+          }
           const chainCount = augmentChainCount[augment] || 1;
           if (chainCount > 1) {
             baseReason = `Versatile augment (${chainCount} chains)`;
@@ -1929,17 +1945,13 @@ class AugmentOptimizer {
           chainCount: chainCount,
           efficiency,
           remainingAugments: remainingAugments.slice(0, 5),
-          selectedChain: feasibleChainInfo?.name || null,
-          availableChains: chainsForAugment.map(([name, c]) => {
-            // Only count cost of missing augments except the recommended one
-            const missingOthers = c.augments.filter(
-              (a) => !this.selectedAugments.has(a) && a !== augment
-            );
-            return {
-              name,
-              cost: this.calculateChainCost(missingOthers, allAugments),
-            };
-          }),
+          selectedChain:
+            this.selectedChainPerAugment[augment] ||
+            feasibleChainInfo?.name ||
+            null,
+          availableChains: chainDetails
+            .map((d) => ({ name: d.name, cost: d.cost }))
+            .sort((a, b) => a.cost - b.cost),
         });
       });
     });
