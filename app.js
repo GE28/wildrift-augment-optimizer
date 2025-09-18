@@ -1073,6 +1073,13 @@ class AugmentOptimizer {
     document.querySelector(".modal__backdrop").addEventListener("click", () => {
       this.closeModal();
     });
+
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("coxinha-helper")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
   }
 
   getCategoriesFromRoles(roles) {
@@ -1474,6 +1481,45 @@ class AugmentOptimizer {
       let cleanupTimeout = null;
       let currentTooltipElement = null;
 
+      function calculateSmartPosition(
+        mouseX,
+        mouseY,
+        tooltipWidth,
+        tooltipHeight
+      ) {
+        const offset = 12;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const scrollX =
+          window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollY =
+          window.pageYOffset || document.documentElement.scrollTop;
+
+        let left = mouseX + offset;
+        let top = mouseY + offset;
+
+        if (left + tooltipWidth > viewportWidth) {
+          left = mouseX - tooltipWidth - offset;
+        }
+
+        if (top + tooltipHeight > viewportHeight) {
+          top = mouseY - tooltipHeight - offset;
+        }
+
+        if (left < 0) {
+          left = offset;
+        }
+
+        if (top < 0) {
+          top = offset;
+        }
+
+        return {
+          left: left + scrollX,
+          top: top + scrollY,
+        };
+      }
+
       function createTooltip(target, content, isHTML = false) {
         // Always cleanup first to avoid multiple tooltips
         cleanupTooltips();
@@ -1498,10 +1544,19 @@ class AugmentOptimizer {
         document.body.appendChild(tooltip);
 
         function moveTooltip(ev) {
-          if (tooltip.parentNode) {
-            tooltip.style.left = ev.clientX + 12 + "px";
-            tooltip.style.top = ev.clientY + 12 + "px";
-          }
+          if (!tooltip.parentNode) return;
+
+          // Get tooltip dimensions for smart positioning
+          const tooltipRect = tooltip.getBoundingClientRect();
+          const position = calculateSmartPosition(
+            ev.clientX,
+            ev.clientY,
+            tooltipRect.width,
+            tooltipRect.height
+          );
+
+          tooltip.style.left = position.left + "px";
+          tooltip.style.top = position.top + "px";
         }
 
         // Store the moveTooltip function on the target element
@@ -1545,6 +1600,11 @@ class AugmentOptimizer {
         // Badge tooltip
         else if (
           target.classList.contains("chain-count-badge") &&
+          target.dataset.tooltip
+        ) {
+          createTooltip(target, target.dataset.tooltip, false);
+        } else if (
+          target.classList.contains("coxinha-helper") &&
           target.dataset.tooltip
         ) {
           createTooltip(target, target.dataset.tooltip, false);
@@ -1684,185 +1744,218 @@ class AugmentOptimizer {
   generateRecommendations() {
     const recommendations = [];
     const allAugments = this.getAllAugments();
-
     const augmentChainCount = {};
     Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
       chain.augments.forEach((augment) => {
         augmentChainCount[augment] = (augmentChainCount[augment] || 0) + 1;
       });
     });
-
     const processedAugments = new Set();
-
+    const maxSlots = 5;
+    const usedSlots = this.selectedAugments.size;
+    const remainingSlots = maxSlots - usedSlots;
     Object.entries(this.augmentChains).forEach(([chainName, chain]) => {
       const selectedInChain = chain.augments.filter((augment) =>
         this.selectedAugments.has(augment)
       );
-
       const missingAugments = chain.augments.filter(
         (augment) => !this.selectedAugments.has(augment)
       );
-
       missingAugments.forEach((augment) => {
-        // Skip if we've already processed this augment
         if (processedAugments.has(augment)) return;
         processedAugments.add(augment);
-
-        let priority = 1;
-        let reason = `Part of ${chainName} chain`;
-
-        // Base priority boost for multi-chain augments (versatility bonus)
-        const chainCount = augmentChainCount[augment] || 1;
-        if (chainCount > 1) {
-          priority += chainCount; // Each additional chain adds +1 priority
-          reason = `Versatile augment (${chainCount} chains)`;
-        }
-
-        // Find the best completion status across all chains this augment belongs to
-        let bestCompletionStatus = {
-          priority: 0,
-          reason: reason,
-          efficiency: 0,
-        };
-
-        Object.entries(this.augmentChains).forEach(
-          ([otherChainName, otherChain]) => {
-            if (otherChain.augments.includes(augment)) {
-              const selectedInOtherChain = otherChain.augments.filter((a) =>
-                this.selectedAugments.has(a)
-              ).length;
-
-              const augmentsNeededToComplete =
-                otherChain.required - selectedInOtherChain;
-              const completionProgress =
-                selectedInOtherChain / otherChain.required;
-
-              let chainPriority = 0;
-              let chainReason = reason;
-              let efficiency = 0; // Lower is better - fewer augments needed
-
-              if (augmentsNeededToComplete === 2) {
-                chainPriority = 8;
-                efficiency = 2;
-                chainReason = `Near completion of ${otherChainName} (need ${augmentsNeededToComplete} more)`;
-              } else if (augmentsNeededToComplete === 3) {
-                chainPriority = 6 + completionProgress;
-                efficiency = 3;
-                chainReason = `Close to ${otherChainName} completion (need ${augmentsNeededToComplete} more)`;
-              } else if (completionProgress >= 0.5) {
-                chainPriority = 4 + completionProgress;
-                efficiency = augmentsNeededToComplete;
-                chainReason = `Continue ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
-              } else {
-                chainPriority = 2 + completionProgress;
-                efficiency = augmentsNeededToComplete;
-                chainReason = `Start ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
-              }
-
-              // Update if this chain offers better completion status
-              const isBetter =
-                chainPriority > bestCompletionStatus.priority ||
-                (chainPriority === bestCompletionStatus.priority &&
-                  efficiency < bestCompletionStatus.efficiency);
-
-              if (isBetter) {
-                bestCompletionStatus = {
-                  priority: chainPriority,
-                  reason: chainReason,
-                  efficiency: efficiency,
-                };
-              }
-            }
-          }
+        // Find all chains this augment belongs to
+        const chainsForAugment = Object.entries(this.augmentChains).filter(
+          ([_, c]) => c.augments.includes(augment)
         );
-
-        // Apply the best completion bonus
-        priority += bestCompletionStatus.priority;
-        reason = bestCompletionStatus.reason;
-
-        // If it's a versatile augment, mention all applicable chains
-        if (chainCount > 1) {
-          const applicableChains = Object.entries(this.augmentChains)
-            .filter(([_, chain]) => chain.augments.includes(augment))
-            .map(([name, _]) => name);
-          reason += ` - Works with: ${applicableChains.join(", ")}`;
-        }
-
-        // Note: Playstyle matching is handled in updateRecommendations() as a filter
-
-        // Get the selected chain for this augment, or default to cheapest chain
-        let selectedChainInfo = null;
-        if (this.selectedChainPerAugment[augment]) {
-          const selectedChainName = this.selectedChainPerAugment[augment];
-          selectedChainInfo = {
-            name: selectedChainName,
-            chain: this.augmentChains[selectedChainName],
-            cost: this.calculateChainCost(
-              this.augmentChains[selectedChainName].augments,
-              allAugments
-            ),
-          };
-        } else {
-          selectedChainInfo = this.getCheapestChainForAugment(
-            augment,
-            allAugments
-          );
-          if (selectedChainInfo) {
-            // Store the default cheapest chain selection
-            this.selectedChainPerAugment[augment] = selectedChainInfo.name;
-          }
-        }
-
-        let remainingAugments = [];
-        if (selectedChainInfo) {
-          const selectedInChain = selectedChainInfo.chain.augments.filter((a) =>
+        // Find the feasible chain (can be completed with remaining slots)
+        let feasibleChainInfo = null;
+        let minRequired = Infinity;
+        let minCost = Infinity;
+        chainsForAugment.forEach(([cName, c]) => {
+          const selectedInC = c.augments.filter((a) =>
             this.selectedAugments.has(a)
           ).length;
-          const augmentsNeededAfterSelection =
-            selectedChainInfo.chain.required - selectedInChain - 1; // -1 because we're adding this augment
 
-          if (augmentsNeededAfterSelection > 0) {
-            const missingAugments = selectedChainInfo.chain.augments.filter(
-              (a) => !this.selectedAugments.has(a) && a !== augment
-            );
-            remainingAugments = missingAugments.map((augName) => ({
+          const requiredToComplete = c.required - selectedInC;
+
+          // Only count cost of missing augments except the recommended one
+          const missingOthers = c.augments.filter(
+            (a) => !this.selectedAugments.has(a) && a !== augment
+          );
+
+          const cost = this.calculateChainCost(missingOthers, allAugments);
+
+          if (
+            requiredToComplete <= remainingSlots &&
+            requiredToComplete < minRequired
+          ) {
+            minRequired = requiredToComplete;
+            minCost = cost;
+            feasibleChainInfo = {
+              name: cName,
+              chain: c,
+              requiredToComplete,
+              cost,
+              selectedInC,
+            };
+          } else if (requiredToComplete === minRequired && cost < minCost) {
+            minCost = cost;
+            feasibleChainInfo = {
+              name: cName,
+              chain: c,
+              requiredToComplete,
+              cost,
+              selectedInC,
+            };
+          }
+        });
+
+        // If no feasible chain, penalize priority
+        let priority = 0;
+        let reason = "";
+        let efficiency = 999;
+        let remainingAugments = [];
+
+        if (feasibleChainInfo) {
+          // Rarity score: Prismatic=3, Gold=2, Silver=1
+          const rarityScore = { Prismatic: 3, Gold: 2, Silver: 1 };
+          const augRarity = allAugments[augment]?.rarity || "Silver";
+          const rarityVal = rarityScore[augRarity] || 1;
+
+          // Proportion completed
+          const proportionCompleted =
+            feasibleChainInfo.selectedInC / feasibleChainInfo.chain.required;
+
+          // Priority formula: higher rarity, fewer required, STRONGER cost penalty, more completed
+          priority =
+            10 * rarityVal -
+            feasibleChainInfo.requiredToComplete +
+            Math.floor(5 * proportionCompleted) -
+            feasibleChainInfo.cost; // Strong cost penalty
+
+          // Use the original reason logic
+          let baseReason = `Part of ${feasibleChainInfo.name} chain`;
+          const chainCount = augmentChainCount[augment] || 1;
+          if (chainCount > 1) {
+            baseReason = `Versatile augment (${chainCount} chains)`;
+          }
+
+          // Find best completion status for reason
+          let bestCompletionStatus = {
+            priority: 0,
+            reason: baseReason,
+            efficiency: 0,
+          };
+
+          Object.entries(this.augmentChains).forEach(
+            ([otherChainName, otherChain]) => {
+              if (otherChain.augments.includes(augment)) {
+                const selectedInOtherChain = otherChain.augments.filter((a) =>
+                  this.selectedAugments.has(a)
+                ).length;
+                const augmentsNeededToComplete =
+                  otherChain.required - selectedInOtherChain;
+                const completionProgress =
+                  selectedInOtherChain / otherChain.required;
+                let chainPriority = 0;
+                let chainReason = baseReason;
+                let efficiency = 0;
+                if (augmentsNeededToComplete === 2) {
+                  chainPriority = 8;
+                  efficiency = 2;
+                  chainReason = `Near completion of ${otherChainName} (need ${augmentsNeededToComplete} more)`;
+                } else if (augmentsNeededToComplete === 3) {
+                  chainPriority = 6 + completionProgress;
+                  efficiency = 3;
+                  chainReason = `Close to ${otherChainName} completion (need ${augmentsNeededToComplete} more)`;
+                } else if (completionProgress >= 0.5) {
+                  chainPriority = 4 + completionProgress;
+                  efficiency = augmentsNeededToComplete;
+                  chainReason = `Continue ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
+                } else {
+                  chainPriority = 2 + completionProgress;
+                  efficiency = augmentsNeededToComplete;
+                  chainReason = `Start ${otherChainName} chain (${selectedInOtherChain}/${otherChain.required})`;
+                }
+                const isBetter =
+                  chainPriority > bestCompletionStatus.priority ||
+                  (chainPriority === bestCompletionStatus.priority &&
+                    efficiency < bestCompletionStatus.efficiency);
+                if (isBetter) {
+                  bestCompletionStatus = {
+                    priority: chainPriority,
+                    reason: chainReason,
+                    efficiency: efficiency,
+                  };
+                }
+              }
+            }
+          );
+
+          // Apply the best completion bonus
+          priority += bestCompletionStatus.priority;
+          reason = bestCompletionStatus.reason;
+
+          // If it's a versatile augment, mention all applicable chains
+          if (chainCount > 1) {
+            const applicableChains = Object.entries(this.augmentChains)
+              .filter(([_, chain]) => chain.augments.includes(augment))
+              .map(([name, _]) => name);
+            reason += ` - Works with: ${applicableChains.join(", ")}`;
+          }
+          efficiency = feasibleChainInfo.requiredToComplete;
+
+          // Remaining augments for this chain
+          remainingAugments = feasibleChainInfo.chain.augments
+            .filter((a) => !this.selectedAugments.has(a) && a !== augment)
+            .map((augName) => ({
               name: augName,
               rarity: allAugments[augName]?.rarity || "Silver",
             }));
-          }
+        } else {
+          // Not feasible, penalize
+          priority = -100;
+          reason = `Cannot complete any chain with remaining slots (${remainingSlots})`;
         }
 
+        const chainCount = augmentChainCount[augment] || 1;
         recommendations.push({
           augment,
           priority,
           reason,
           effect: allAugments[augment]?.effect || chain.bonus,
-          chain: chainName,
+          chain: feasibleChainInfo?.name || chainName,
           chainCount: chainCount,
-          efficiency: bestCompletionStatus.efficiency || 999, // Higher number = less efficient
-          remainingAugments: remainingAugments.slice(0, 5), // Limit to 5 to avoid clutter
-          selectedChain: selectedChainInfo?.name || null,
-          availableChains: Object.entries(this.augmentChains)
-            .filter(([_, chain]) => chain.augments.includes(augment))
-            .map(([name, chain]) => ({
+          efficiency,
+          remainingAugments: remainingAugments.slice(0, 5),
+          selectedChain: feasibleChainInfo?.name || null,
+          availableChains: chainsForAugment.map(([name, c]) => {
+            // Only count cost of missing augments except the recommended one
+            const missingOthers = c.augments.filter(
+              (a) => !this.selectedAugments.has(a) && a !== augment
+            );
+            return {
               name,
-              cost: this.calculateChainCost(chain.augments, allAugments),
-            })),
+              cost: this.calculateChainCost(missingOthers, allAugments),
+            };
+          }),
         });
       });
     });
-
-    // Add individual augments that match playstyle
+    // Individual augments (not in chains)
     Object.entries(this.individualAugments).forEach(([name, augment]) => {
       if (!this.selectedAugments.has(name) && !processedAugments.has(name)) {
         let priority = 2;
         let reason = `Standalone augment`;
-
         if (augment.addedIn === "August 2025") {
           priority += 1;
           reason += " (New!)";
         }
-
+        // Rarity bonus
+        const rarityScore = { Prismatic: 3, Gold: 2, Silver: 1 };
+        const rarityVal = rarityScore[augment.rarity || "Silver"] || 1;
+        priority += rarityVal;
         recommendations.push({
           augment: name,
           priority,
@@ -1870,23 +1963,18 @@ class AugmentOptimizer {
           effect: augment.effect,
           chain: null,
           chainCount: 0,
-          efficiency: 999, // Standalone augments have lowest efficiency priority
-          remainingAugments: [], // Individual augments have no remaining chain augments
+          efficiency: 999,
+          remainingAugments: [],
         });
       }
     });
-
-    // Sort by priority (highest first), then by efficiency (lowest number = fewer augments needed), then by chain count (most versatile)
+    // Sort by priority (highest first), then by efficiency (lowest number = fewer augments needed), then by chain cost, then by chain count
     return recommendations.sort((a, b) => {
-      // Primary: priority (highest first)
-      if (b.priority !== a.priority) {
-        return b.priority - a.priority;
-      }
-      // Secondary: efficiency (fewer augments needed is better)
-      if (a.efficiency !== b.efficiency) {
-        return a.efficiency - b.efficiency;
-      }
-      // Tertiary: chain count (more versatile is better)
+      if (b.priority !== a.priority) return b.priority - a.priority;
+      if (a.efficiency !== b.efficiency) return a.efficiency - b.efficiency;
+      const aCost = a.availableChains?.[0]?.cost || 9999;
+      const bCost = b.availableChains?.[0]?.cost || 9999;
+      if (aCost !== bCost) return aCost - bCost;
       return (b.chainCount || 0) - (a.chainCount || 0);
     });
   }
